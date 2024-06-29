@@ -5,190 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compilador, entre aspas</title>
     <style>
-        .tree ul {
-            padding-top: 20px; 
-            position: relative;
-            transition: all 0.5s;
-            -webkit-transition: all 0.5s;
-            -moz-transition: all 0.5s;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-
-        .tree li {
-            float: left;
-            text-align: center;
-            list-style-type: none;
-            position: relative;
-            padding: 20px 5px 0 5px;
-            transition: all 0.5s;
-            -webkit-transition: all 0.5s;
-            -moz-transition: all 0.5s;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
-
-        .tree li::before, .tree li::after {
-            content: '';
-            position: absolute; 
-            top: 0; 
-            right: 50%;
-            border-top: 1px solid #ccc;
-            width: 50%; 
-            height: 20px;
-        }
-
-        .tree li::after {
-            right: auto; 
-            left: 50%;
-            border-left: 1px solid #ccc;
-        }
-
-        .tree li:only-child::after, .tree li:only-child::before {
-            display: none;
-        }
-
-        .tree li:only-child { 
-            padding-top: 0;
-        }
-
-        .tree li:first-child::before, .tree li:last-child::after {
-            border: 0 none;
-        }
-
-        .tree li:last-child::before {
-            border-right: 1px solid #ccc;
-            border-radius: 0 5px 0 0;
-            -webkit-border-radius: 0 5px 0 0;
-            -moz-border-radius: 0 5px 0 0;
-        }
-
-        .tree li:first-child::after {
-            border-radius: 5px 0 0 0;
-            -webkit-border-radius: 5px 0 0 0;
-            -moz-border-radius: 5px 0 0 0;
-        }
-
-        .tree ul ul::before {
-            content: '';
-            position: absolute; 
-            top: 0; 
-            left: 50%;
-            border-left: 1px solid #ccc;
-            width: 0; 
-            height: 20px;
-        }
-
-        .tree li a {
-            border: 1px solid #ccc;
-            padding: 5px 10px;
-            text-decoration: none;
-            color: #666;
-            font-family: arial, verdana, tahoma;
-            font-size: 11px;
-            display: inline-block;
-            border-radius: 5px;
-            -webkit-border-radius: 5px;
-            -moz-border-radius: 5px;
-            transition: all 0.5s;
-            -webkit-transition: all 0.5s;
-            -moz-transition: all 0.5s;
-        }
-
-        .tree li a:hover, .tree li a:hover+ul li a {
-            background: #c8e4f8; 
-            color: #000; 
-            border: 1px solid #94a0b4;
-        }
-
-        .tree li a:hover+ul li::after, 
-        .tree li a:hover+ul li::before, 
-        .tree li a:hover+ul::before, 
-        .tree li a:hover+ul ul::before {
-            border-color:  #94a0b4;
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
     <script>
-        // Placeholder for JFLAP-generated components for lexical analysis
-        function lexicalAnalyzer(input) {
-            // JFLAP-generated lexical analysis logic goes here
-            // This function should return a list of tokens or an error message with line and column numbers
-            return []; // Placeholder return value
-        }
-
-        // Placeholder for JFLAP-generated components for syntactic analysis
-        const grammar = {
-            terminals: ["def", "id", "(", "int", ")", "{", "}", "return", ";", "=", "+", "*", "num"],
-            nonTerminals: ["MAIN", "FLIST", "FDEF", "PARLIST", "STMT", "STMTLIST", "EXPR", "NUMEXPR", "TERM", "FACTOR"],
-            startSymbol: "MAIN",
-            productions: {
-                // Placeholder for production rules from JFLAP
-                "MAIN": [["STMT"], ["FLIST"], ["ε"]],
-                "FLIST": [["FDEF", "FLIST"], ["FDEF"]],
-                "FDEF": [["def", "id", "(", "PARLIST", ")", "{", "STMTLIST", "}"]],
-                "PARLIST": [["int", "id", ",", "PARLIST"], ["int", "id"], ["ε"]],
-                "STMT": [["int", "id", ";"], ["id", "=", "EXPR", ";"], ["return", ";"], ["{", "STMTLIST", "}"], [";"]],
-                "STMTLIST": [["STMT", "STMTLIST"], ["STMT"]],
-                "EXPR": [["NUMEXPR", "<", "NUMEXPR"], ["NUMEXPR", ">", "NUMEXPR"], ["NUMEXPR", "==", "NUMEXPR"]],
-                "NUMEXPR": [["NUMEXPR", "+", "TERM"], ["TERM"]],
-                "TERM": [["TERM", "*", "FACTOR"], ["FACTOR"]],
-                "FACTOR": [["num"], ["(", "NUMEXPR", ")"], ["id"]]
-            },
-            first: {
-                // Placeholder for first sets from JFLAP
-            },
-            follow: {
-                // Placeholder for follow sets from JFLAP
-            }
+        const parsingTable = {
+            'E': { '(': ['T', 'X'], 'id': ['T', 'X'] },
+            'F': { '(': ['(', 'E', ')'], 'id': ['id'] },
+            'T': { '(': ['F', 'Y'], 'id': ['F', 'Y'] },
+            'X': { '+': ['+', 'T', 'X'], '$': ['ε'], ')': ['ε'] },
+            'Y': { '+': ['ε'], '*': ['*', 'F', 'Y'], '$': ['ε'], ')': ['ε'] }
         };
 
+        function lexicalAnalyzer(input) {
+            const tokens = [];
+            let i = 0;
+
+            while (i < input.length) {
+                const char = input[i];
+                if (/[a-zA-Z]/.test(char)) {
+                    let id = char;
+                    i++;
+                    while (i < input.length && /[a-zA-Z0-9]/.test(input[i])) {
+                        id += input[i];
+                        i++;
+                    }
+                    tokens.push('id'); // Simplifying all identifiers to 'id'
+                } else {
+                    switch (char) {
+                        case '+': case '*': case '(': case ')': tokens.push(char); break;
+                        case ' ': case '\t': case '\n': break; // Skip whitespace
+                        default: return `Lexical error at position ${i}: unexpected character '${char}'`;
+                    }
+                    i++;
+                }
+            }
+            tokens.push('$'); // End of input marker
+            return tokens;
+        }
+
         function parse(tokens) {
-            // JFLAP-generated syntactic analysis logic goes here
-            // This function should return "Accepted" or "Rejected" based on the parsing table
-            return "Accepted"; // Placeholder return value
+            const stack = ['$', 'E'];
+            let index = 0;
+            let stepNumber = 0;
+            const derivationSteps = [{ step: stepNumber, production: 'Start', currentString: 'E' }];
+
+            while (stack.length > 1 || index < tokens.length - 1) {
+                const top = stack.pop();
+                const token = tokens[index];
+                console.log(`Step ${stepNumber++}: Top of stack: ${top}, Current token: ${token}`);
+
+                if (parsingTable[top] && parsingTable[top][token]) {
+                    const production = parsingTable[top][token];
+                    stack.push(...production.reverse().filter(x => x !== 'ε'));
+                    derivationSteps.push({ step: stepNumber, production: `${top} → ${production.join(' ')}`, currentString: stack.join(' ') });
+                    console.log(`Applying production: ${top} → ${production.join(' ')}`);
+                } else if (top === token) {
+                    index++;
+                } else {
+                    console.log(`Syntax error: expected ${top}, found ${token}`);
+                    return { result: `Syntax error: expected '${top}' but found '${token}' at position ${index}`, derivationSteps };
+                }
+            }
+            console.log('Parsing completed successfully');
+            derivationSteps.push({ step: stepNumber + 1, production: 'End', currentString: stack.join(' ') });
+            return { result: "Accepted", derivationSteps };
         }
 
         function analyzeInput() {
             const inputText = document.getElementById('inputParagraph').value;
             const tokens = lexicalAnalyzer(inputText.trim());
-            if (typeof tokens === 'string') { // If tokens is an error message
+            console.log('Tokens:', tokens);
+            if (typeof tokens === 'string') {
                 document.getElementById('output').innerText = tokens;
             } else {
-                const parseResult = parse(tokens);
-                document.getElementById('output').innerText = parseResult;
-                if (parseResult === "Accepted") {
-                    const parseTree = buildParseTree(tokens);
-                    document.getElementById('tree').innerHTML = parseTree;
+                const { result, derivationSteps } = parse(tokens);
+                console.log('Parse result:', result);
+                console.log('Derivation steps:', derivationSteps);
+                document.getElementById('output').innerText = result;
+                if (Array.isArray(derivationSteps)) {
+                    displayDerivationTable(derivationSteps);
                 }
             }
         }
 
-        function buildParseTree(tokens) {
-            // Placeholder for building the parse tree
-            // The parse tree should be built based on the parsed tokens
-            return generateTreeHTML({value: "ROOT", children: []}); // Placeholder return value
-        }
+        function displayDerivationTable(derivationSteps) {
+            const tableBody = document.getElementById('derivationTableBody');
+            tableBody.innerHTML = '';
 
-        function generateTreeHTML(node) {
-            if (!node) return '';
+            derivationSteps.forEach((step) => {
+                const row = document.createElement('tr');
+                const stepNumberCell = document.createElement('td');
+                stepNumberCell.innerText = step.step; // Show the step number
+                const stepCell = document.createElement('td');
+                stepCell.innerText = step.production; // Show the production
+                const currentStringCell = document.createElement('td');
+                currentStringCell.innerText = step.currentString;
 
-            let html = `<li><a href="#">${node.value}</a>`;
-            if (node.children && node.children.length > 0) {
-                html += '<ul>';
-                for (const child of node.children) {
-                    html += generateTreeHTML(child);
-                }
-                html += '</ul>';
-            }
-            html += '</li>';
-            return html;
+                row.appendChild(stepNumberCell); // First column: Step number
+                row.appendChild(stepCell); // Second column: Derivation
+                row.appendChild(currentStringCell); // Third column: Current String
+                tableBody.appendChild(row);
+            });
         }
     </script>
     <main>
-        <textarea id="inputParagraph" placeholder="Type your paragraph here!"></textarea>
+        <textarea id="inputParagraph" placeholder="Type your input here!"></textarea>
         <button onclick="analyzeInput()">Analyze</button>
         <div id="output"></div>
-        <div class="tree">
-            <ul id="tree"></ul>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Step</th>
+                    <th>Derivation</th>
+                    <th>Current String</th>
+                </tr>
+            </thead>
+            <tbody id="derivationTableBody">
+            </tbody>
+        </table>
     </main>
 </body>
 </html>
