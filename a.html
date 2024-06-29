@@ -17,6 +17,98 @@
         th {
             background-color: #f2f2f2;
         }
+        .tree ul {
+            padding-top: 20px; 
+            position: relative;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+        .tree li {
+            float: left;
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute; 
+            top: 0; 
+            right: 50%;
+            border-top: 1px solid #ccc;
+            width: 50%; 
+            height: 20px;
+        }
+        .tree li::after {
+            right: auto; 
+            left: 50%;
+            border-left: 1px solid #ccc;
+        }
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+        .tree li:only-child { 
+            padding-top: 0;
+        }
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before {
+            border-right: 1px solid #ccc;
+            border-radius: 0 5px 0 0;
+            -webkit-border-radius: 0 5px 0 0;
+            -moz-border-radius: 0 5px 0 0;
+        }
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+            -webkit-border-radius: 5px 0 0 0;
+            -moz-border-radius: 5px 0 0 0;
+        }
+        .tree ul ul::before {
+            content: '';
+            position: absolute; 
+            top: 0; 
+            left: 50%;
+            border-left: 1px solid #ccc;
+            width: 0; 
+            height: 20px;
+        }
+        .tree li a {
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: #666;
+            font-family: arial, verdana, tahoma;
+            font-size: 11px;
+            display: inline-block;
+            border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+        .tree li a:hover, .tree li a:hover+ul li a {
+            background: #c8e4f8; 
+            color: #000; 
+            border: 1px solid #94a0b4;
+        }
+        .tree li a:hover+ul li::after, 
+        .tree li a:hover+ul li::before, 
+        .tree li a:hover+ul::before, 
+        .tree li a:hover+ul ul::before {
+            border-color:  #94a0b4;
+        }
+        .tree li a.non-terminal {
+            background-color: #ffa500;
+        }
+        .tree li a.terminal {
+            background-color: #add8e6;
+        }
     </style>
 </head>
 <body>
@@ -32,6 +124,7 @@
         function lexicalAnalyzer(input) {
             const tokens = [];
             let i = 0;
+            const tokenSteps = [];
 
             while (i < input.length) {
                 const char = input[i];
@@ -42,17 +135,20 @@
                         id += input[i];
                         i++;
                     }
-                    tokens.push('id'); // Simplifying all identifiers to 'id'
+                    tokens.push('id');
+                    tokenSteps.push({ position: i - id.length, token: 'id' });
                 } else {
                     switch (char) {
-                        case '+': case '*': case '(': case ')': tokens.push(char); break;
-                        case ' ': case '\t': case '\n': break; // Skip whitespace
+                        case '+': case '*': case '(': case ')': tokens.push(char); tokenSteps.push({ position: i, token: char }); break;
+                        case ' ': case '\t': case '\n': break;
                         default: return `Lexical error at position ${i}: unexpected character '${char}'`;
                     }
                     i++;
                 }
             }
-            tokens.push('$'); // End of input marker
+            tokens.push('$');
+            tokenSteps.push({ position: i, token: '$' });
+            displayTokenTable(tokenSteps);
             return tokens;
         }
 
@@ -60,45 +156,66 @@
             const stack = ['$', 'E'];
             let index = 0;
             let stepNumber = 0;
-            const derivationSteps = [{ step: stepNumber, production: 'Start', currentString: 'E' }];
+            const derivationSteps = [{ step: stepNumber, production: 'Start', currentString: 'E', stack: stack.slice().reverse().join(' ') }];
+            const parseTree = { value: 'E', children: [] };
+            const parseStack = [{ node: parseTree, token: 'E' }];
 
             while (stack.length > 1 || index < tokens.length - 1) {
                 const top = stack.pop();
                 const token = tokens[index];
+                const currentParseNode = parseStack.pop();
                 console.log(`Step ${stepNumber++}: Top of stack: ${top}, Current token: ${token}`);
 
                 if (parsingTable[top] && parsingTable[top][token]) {
                     const production = parsingTable[top][token];
                     stack.push(...production.reverse().filter(x => x !== 'ε'));
-                    derivationSteps.push({ step: stepNumber, production: `${top} → ${production.join(' ')}`, currentString: stack.join(' ') });
+                    derivationSteps.push({ step: stepNumber, production: `${top} → ${production.join(' ')}`, currentString: stack.join(' '), stack: stack.slice().reverse().join(' ') });
                     console.log(`Applying production: ${top} → ${production.join(' ')}`);
+
+                    production.reverse().forEach(symbol => {
+                        if (symbol !== 'ε') {
+                            const newNode = { value: symbol, children: [] };
+                            currentParseNode.node.children.push(newNode);
+                            parseStack.push({ node: newNode, token: symbol });
+                        }
+                    });
                 } else if (top === token) {
                     index++;
                 } else {
                     console.log(`Syntax error: expected ${top}, found ${token}`);
-                    return { result: `Syntax error: expected '${top}' but found '${token}' at position ${index}`, derivationSteps };
+                    return { result: `Syntax error: expected '${top}' but found '${token}' at position ${index}`, derivationSteps, parseTree };
                 }
             }
             console.log('Parsing completed successfully');
-            derivationSteps.push({ step: stepNumber + 1, production: 'End', currentString: stack.join(' ') });
-            return { result: "Accepted", derivationSteps };
+            derivationSteps.push({ step: stepNumber + 1, production: 'End', currentString: stack.join(' '), stack: stack.slice().reverse().join(' ') });
+            return { result: "Accepted", derivationSteps, parseTree };
         }
 
         function analyzeInput() {
+            clearTables();
             const inputText = document.getElementById('inputParagraph').value;
             const tokens = lexicalAnalyzer(inputText.trim());
             console.log('Tokens:', tokens);
             if (typeof tokens === 'string') {
                 document.getElementById('output').innerText = tokens;
             } else {
-                const { result, derivationSteps } = parse(tokens);
+                const { result, derivationSteps, parseTree } = parse(tokens);
                 console.log('Parse result:', result);
                 console.log('Derivation steps:', derivationSteps);
+                console.log('Parse tree:', parseTree);
                 document.getElementById('output').innerText = result;
                 if (Array.isArray(derivationSteps)) {
                     displayDerivationTable(derivationSteps);
                 }
+                if (result === "Accepted") {
+                    document.getElementById('tree').innerHTML = generateTreeHTML(parseTree);
+                }
             }
+        }
+
+        function clearTables() {
+            document.getElementById('tokenTableBody').innerHTML = '';
+            document.getElementById('derivationTableBody').innerHTML = '';
         }
 
         function displayDerivationTable(derivationSteps) {
@@ -108,27 +225,84 @@
             derivationSteps.forEach((step) => {
                 const row = document.createElement('tr');
                 const stepNumberCell = document.createElement('td');
-                stepNumberCell.innerText = step.step; // Show the step number
+               
+
+ stepNumberCell.innerText = step.step;
+                const stackCell = document.createElement('td');
+                stackCell.innerText = step.stack;
                 const stepCell = document.createElement('td');
-                stepCell.innerText = step.production; // Show the production
+                stepCell.innerText = step.production;
                 const currentStringCell = document.createElement('td');
                 currentStringCell.innerText = step.currentString;
 
-                row.appendChild(stepNumberCell); // First column: Step number
-                row.appendChild(stepCell); // Second column: Derivation
-                row.appendChild(currentStringCell); // Third column: Current String
+                row.appendChild(stepNumberCell);
+                row.appendChild(stackCell);
+                row.appendChild(stepCell);
+                row.appendChild(currentStringCell);
                 tableBody.appendChild(row);
             });
+        }
+
+        function displayTokenTable(tokenSteps) {
+            const tableBody = document.getElementById('tokenTableBody');
+            tableBody.innerHTML = '';
+
+            tokenSteps.forEach((step) => {
+                const row = document.createElement('tr');
+                const positionCell = document.createElement('td');
+                positionCell.innerText = step.position;
+                const tokenCell = document.createElement('td');
+                tokenCell.innerText = step.token;
+
+                row.appendChild(positionCell);
+                row.appendChild(tokenCell);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function generateTreeHTML(node) {
+            if (!node) return '';
+
+            let cssClass = '';
+            if (node.children && node.children.length > 0) {
+                cssClass = 'non-terminal';
+            } else {
+                cssClass = 'terminal';
+            }
+
+            let html = `<li><a href="#" class="${cssClass}">${node.value}</a>`;
+            if (node.children && node.children.length > 0) {
+                html += '<ul>';
+                for (const child of node.children) {
+                    html += generateTreeHTML(child);
+                }
+                html += '</ul>';
+            }
+            html += '</li>';
+            return html;
         }
     </script>
     <main>
         <textarea id="inputParagraph" placeholder="Type your input here!"></textarea>
         <button onclick="analyzeInput()">Analyze</button>
         <div id="output"></div>
+        <h2>Lexical Analysis</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Token</th>
+                </tr>
+            </thead>
+            <tbody id="tokenTableBody">
+            </tbody>
+        </table>
+        <h2>Derivation Table</h2>
         <table>
             <thead>
                 <tr>
                     <th>Step</th>
+                    <th>Stack</th>
                     <th>Derivation</th>
                     <th>Current String</th>
                 </tr>
@@ -136,6 +310,10 @@
             <tbody id="derivationTableBody">
             </tbody>
         </table>
+        <h2>Parse Tree</h2>
+        <div class="tree">
+            <ul id="tree"></ul>
+        </div>
     </main>
 </body>
 </html>
