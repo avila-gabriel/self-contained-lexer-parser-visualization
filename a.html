@@ -113,21 +113,19 @@
 </head>
 <body>
     <script>
-        const parsingTable = {
-            'E': { '(': ['T', 'X'], 'id': ['T', 'X'] },
-            'F': { '(': ['(', 'E', ')'], 'id': ['id'] },
-            'T': { '(': ['F', 'Y'], 'id': ['F', 'Y'] },
-            'X': { '+': ['+', 'T', 'X'], '$': ['ε'], ')': ['ε'] },
-            'Y': { '+': ['ε'], '*': ['*', 'F', 'Y'], '$': ['ε'], ')': ['ε'] }
-        };
+        // Placeholder for the parsing table. Define your grammar rules here.
+        let parsingTable = {};
 
         function lexicalAnalyzer(input) {
             const tokens = [];
             let i = 0;
             const tokenSteps = [];
 
+            // Define your lexer logic here. Below is a simple example that you will need to modify.
             while (i < input.length) {
                 const char = input[i];
+                
+                // Example logic for identifiers and keywords
                 if (/[a-zA-Z]/.test(char)) {
                     let id = char;
                     i++;
@@ -135,30 +133,36 @@
                         id += input[i];
                         i++;
                     }
-                    tokens.push('id');
+                    tokens.push('id'); // Simplify all identifiers to 'id'. Modify as needed.
                     tokenSteps.push({ position: i - id.length, token: 'id' });
                 } else {
+                    // Example logic for operators and special characters
                     switch (char) {
-                        case '+': case '*': case '(': case ')': tokens.push(char); tokenSteps.push({ position: i, token: char }); break;
-                        case ' ': case '\t': case '\n': break;
-                        default: return `Lexical error at position ${i}: unexpected character '${char}'`;
+                        case '+': case '*': case '(': case ')': 
+                            tokens.push(char); 
+                            tokenSteps.push({ position: i, token: char }); 
+                            break;
+                        case ' ': case '\t': case '\n': 
+                            break; // Skip whitespace
+                        default: 
+                            return `Lexical error at position ${i}: unexpected character '${char}'`;
                     }
                     i++;
                 }
             }
-            tokens.push('$');
+            tokens.push('$'); // End of input marker
             tokenSteps.push({ position: i, token: '$' });
             displayTokenTable(tokenSteps);
             return tokens;
         }
 
         function parse(tokens) {
-            const stack = ['$', 'E'];
+            const stack = ['$', 'E'];  // Define your start symbol here
             let index = 0;
             let stepNumber = 0;
             const derivationSteps = [{ step: stepNumber, production: 'Start', currentString: 'E', stack: stack.slice().reverse().join(' ') }];
-            const parseTree = { value: 'E', children: [] };
-            const parseStack = [{ node: parseTree, token: 'E' }];
+            const parseTree = { value: 'E', children: [] };  // Define your start symbol here
+            const parseStack = [{ node: parseTree, token: 'E' }];  // Define your start symbol here
 
             while (stack.length > 1 || index < tokens.length - 1) {
                 const top = stack.pop();
@@ -225,9 +229,7 @@
             derivationSteps.forEach((step) => {
                 const row = document.createElement('tr');
                 const stepNumberCell = document.createElement('td');
-               
-
- stepNumberCell.innerText = step.step;
+                stepNumberCell.innerText = step.step;
                 const stackCell = document.createElement('td');
                 stackCell.innerText = step.stack;
                 const stepCell = document.createElement('td');
