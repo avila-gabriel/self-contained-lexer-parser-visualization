@@ -110,183 +110,12 @@
             background-color: #add8e6;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.10.6/brython.min.js"></script>
 </head>
-<body>
-    <script>
-        // Placeholder for the parsing table. Define your grammar rules here.
-        let parsingTable = {};
-
-        function lexicalAnalyzer(input) {
-            const tokens = [];
-            let i = 0;
-            const tokenSteps = [];
-
-            // Define your lexer logic here. Below is a simple example that you will need to modify.
-            while (i < input.length) {
-                const char = input[i];
-                
-                // Example logic for identifiers and keywords
-                if (/[a-zA-Z]/.test(char)) {
-                    let id = char;
-                    i++;
-                    while (i < input.length && /[a-zA-Z0-9]/.test(input[i])) {
-                        id += input[i];
-                        i++;
-                    }
-                    tokens.push('id'); // Simplify all identifiers to 'id'. Modify as needed.
-                    tokenSteps.push({ position: i - id.length, token: 'id' });
-                } else {
-                    // Example logic for operators and special characters
-                    switch (char) {
-                        case '+': case '*': case '(': case ')': 
-                            tokens.push(char); 
-                            tokenSteps.push({ position: i, token: char }); 
-                            break;
-                        case ' ': case '\t': case '\n': 
-                            break; // Skip whitespace
-                        default: 
-                            return `Lexical error at position ${i}: unexpected character '${char}'`;
-                    }
-                    i++;
-                }
-            }
-            tokens.push('$'); // End of input marker
-            tokenSteps.push({ position: i, token: '$' });
-            displayTokenTable(tokenSteps);
-            return tokens;
-        }
-
-        function parse(tokens) {
-            const stack = ['$', 'E'];  // Define your start symbol here
-            let index = 0;
-            let stepNumber = 0;
-            const derivationSteps = [{ step: stepNumber, production: 'Start', currentString: 'E', stack: stack.slice().reverse().join(' ') }];
-            const parseTree = { value: 'E', children: [] };  // Define your start symbol here
-            const parseStack = [{ node: parseTree, token: 'E' }];  // Define your start symbol here
-
-            while (stack.length > 1 || index < tokens.length - 1) {
-                const top = stack.pop();
-                const token = tokens[index];
-                const currentParseNode = parseStack.pop();
-                console.log(`Step ${stepNumber++}: Top of stack: ${top}, Current token: ${token}`);
-
-                if (parsingTable[top] && parsingTable[top][token]) {
-                    const production = parsingTable[top][token];
-                    stack.push(...production.reverse().filter(x => x !== 'ε'));
-                    derivationSteps.push({ step: stepNumber, production: `${top} → ${production.join(' ')}`, currentString: stack.join(' '), stack: stack.slice().reverse().join(' ') });
-                    console.log(`Applying production: ${top} → ${production.join(' ')}`);
-
-                    production.reverse().forEach(symbol => {
-                        if (symbol !== 'ε') {
-                            const newNode = { value: symbol, children: [] };
-                            currentParseNode.node.children.push(newNode);
-                            parseStack.push({ node: newNode, token: symbol });
-                        }
-                    });
-                } else if (top === token) {
-                    index++;
-                } else {
-                    console.log(`Syntax error: expected ${top}, found ${token}`);
-                    return { result: `Syntax error: expected '${top}' but found '${token}' at position ${index}`, derivationSteps, parseTree };
-                }
-            }
-            console.log('Parsing completed successfully');
-            derivationSteps.push({ step: stepNumber + 1, production: 'End', currentString: stack.join(' '), stack: stack.slice().reverse().join(' ') });
-            return { result: "Accepted", derivationSteps, parseTree };
-        }
-
-        function analyzeInput() {
-            clearTables();
-            const inputText = document.getElementById('inputParagraph').value;
-            const tokens = lexicalAnalyzer(inputText.trim());
-            console.log('Tokens:', tokens);
-            if (typeof tokens === 'string') {
-                document.getElementById('output').innerText = tokens;
-            } else {
-                const { result, derivationSteps, parseTree } = parse(tokens);
-                console.log('Parse result:', result);
-                console.log('Derivation steps:', derivationSteps);
-                console.log('Parse tree:', parseTree);
-                document.getElementById('output').innerText = result;
-                if (Array.isArray(derivationSteps)) {
-                    displayDerivationTable(derivationSteps);
-                }
-                if (result === "Accepted") {
-                    document.getElementById('tree').innerHTML = generateTreeHTML(parseTree);
-                }
-            }
-        }
-
-        function clearTables() {
-            document.getElementById('tokenTableBody').innerHTML = '';
-            document.getElementById('derivationTableBody').innerHTML = '';
-        }
-
-        function displayDerivationTable(derivationSteps) {
-            const tableBody = document.getElementById('derivationTableBody');
-            tableBody.innerHTML = '';
-
-            derivationSteps.forEach((step) => {
-                const row = document.createElement('tr');
-                const stepNumberCell = document.createElement('td');
-                stepNumberCell.innerText = step.step;
-                const stackCell = document.createElement('td');
-                stackCell.innerText = step.stack;
-                const stepCell = document.createElement('td');
-                stepCell.innerText = step.production;
-                const currentStringCell = document.createElement('td');
-                currentStringCell.innerText = step.currentString;
-
-                row.appendChild(stepNumberCell);
-                row.appendChild(stackCell);
-                row.appendChild(stepCell);
-                row.appendChild(currentStringCell);
-                tableBody.appendChild(row);
-            });
-        }
-
-        function displayTokenTable(tokenSteps) {
-            const tableBody = document.getElementById('tokenTableBody');
-            tableBody.innerHTML = '';
-
-            tokenSteps.forEach((step) => {
-                const row = document.createElement('tr');
-                const positionCell = document.createElement('td');
-                positionCell.innerText = step.position;
-                const tokenCell = document.createElement('td');
-                tokenCell.innerText = step.token;
-
-                row.appendChild(positionCell);
-                row.appendChild(tokenCell);
-                tableBody.appendChild(row);
-            });
-        }
-
-        function generateTreeHTML(node) {
-            if (!node) return '';
-
-            let cssClass = '';
-            if (node.children && node.children.length > 0) {
-                cssClass = 'non-terminal';
-            } else {
-                cssClass = 'terminal';
-            }
-
-            let html = `<li><a href="#" class="${cssClass}">${node.value}</a>`;
-            if (node.children && node.children.length > 0) {
-                html += '<ul>';
-                for (const child of node.children) {
-                    html += generateTreeHTML(child);
-                }
-                html += '</ul>';
-            }
-            html += '</li>';
-            return html;
-        }
-    </script>
+<body onload="brython()">
     <main>
         <textarea id="inputParagraph" placeholder="Type your input here!"></textarea>
-        <button onclick="analyzeInput()">Analyze</button>
+        <button id="analyzeButton">Analyze</button>
         <div id="output"></div>
         <h2>Lexical Analysis</h2>
         <table>
@@ -317,5 +146,140 @@
             <ul id="tree"></ul>
         </div>
     </main>
+
+    <script type="text/python">
+        from browser import document, alert
+
+        # Define the parsing table based on the provided grammar from JFLAP
+        parsing_table = {
+            'E': {'(': ['T', 'X'], 'id': ['T', 'X']},
+            'F': {'(': ['(', 'E', ')'], 'id': ['id']},
+            'T': {'(': ['F', 'Y'], 'id': ['F', 'Y']},
+            'X': {'+': ['+', 'T', 'X'], '$': ['ε'], ')': ['ε']},
+            'Y': {'+': ['ε'], '*': ['*', 'F', 'Y'], '$': ['ε'], ')': ['ε']}
+        }
+
+        def lexical_analyzer(input):
+            tokens = []
+            i = 0
+            token_steps = []
+            while i < len(input):
+                char = input[i]
+                if char.isalpha():
+                    id = char
+                    i += 1
+                    while i < len(input) and input[i].isalnum():
+                        id += input[i]
+                        i += 1
+                    tokens.append('id')
+                    token_steps.append({'position': i - len(id), 'token': 'id'})
+                else:
+                    if char in ['+', '*', '(', ')']:
+                        tokens.append(char)
+                        token_steps.append({'position': i, 'token': char})
+                    elif char in [' ', '\t', '\n']:
+                        pass  # skip whitespace
+                    else:
+                        return f"Lexical error at position {i}: unexpected character '{char}'"
+                    i += 1
+            tokens.append('$')
+            token_steps.append({'position': i, 'token': '$'})
+            display_token_table(token_steps)
+            return tokens
+
+        def parse(tokens):
+            stack = ['$', 'E']  # Start symbol 'E'
+            index = 0
+            step_number = 0
+            derivation_steps = [{'step': step_number, 'production': 'Start', 'current_string': 'E', 'stack': ' '.join(reversed(stack))}]
+            parse_tree = {'value': 'E', 'children': []}
+            parse_stack = [{'node': parse_tree, 'token': 'E'}]
+
+            while len(stack) > 1 or index < len(tokens) - 1:
+                top = stack.pop()
+                token = tokens[index]
+                current_parse_node = parse_stack.pop()
+                if top in parsing_table and token in parsing_table[top]:
+                    production = parsing_table[top][token]
+                    stack.extend(reversed([x for x in production if x != 'ε']))
+                    derivation_steps.append({'step': step_number, 'production': f"{top} → {' '.join(production)}", 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
+                    for symbol in reversed(production):
+                        if symbol != 'ε':
+                            new_node = {'value': symbol, 'children': []}
+                            current_parse_node['node']['children'].append(new_node)
+                            parse_stack.append({'node': new_node, 'token': symbol})
+                elif top == token:
+                    index += 1
+                else:
+                    return {'result': f"Syntax error: expected '{top}' but found '{token}' at position {index}", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
+                step_number += 1
+
+            derivation_steps.append({'step': step_number + 1, 'production': 'End', 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
+            return {'result': "Accepted", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
+
+        def display_token_table(token_steps):
+            table_body = document['tokenTableBody']
+            table_body.clear()
+            for step in token_steps:
+                row = document.createElement('tr')
+                position_cell = document.createElement('td')
+                position_cell.text = str(step['position'])
+                token_cell = document.createElement('td')
+                token_cell.text = step['token']
+                row <= position_cell
+                row <= token_cell
+                table_body <= row
+
+        def display_derivation_table(derivation_steps):
+            table_body = document['derivationTableBody']
+            table_body.clear()
+            for step in derivation_steps:
+                row = document.createElement('tr')
+                step_number_cell = document.createElement('td')
+                step_number_cell.text = str(step['step'])
+                stack_cell = document.createElement('td')
+                stack_cell.text = step['stack']
+                step_cell = document.createElement('td')
+                step_cell.text = step['production']
+                current_string_cell = document.createElement('td')
+                current_string_cell.text = step['current_string']
+                row <= step_number_cell
+                row <= stack_cell
+                row <= step_cell
+                row <= current_string_cell
+                table_body <= row
+
+        def generate_tree_html(node):
+            if not node:
+                return ''
+
+            css_class = 'non-terminal' if node['children'] else 'terminal'
+
+            html = f'<li><a href="#" class="{css_class}">{node["value"]}</a>'
+            if node['children']:
+                html += '<ul>'
+                for child in node['children']:
+                    html += generate_tree_html(child)
+                html += '</ul>'
+            html += '</li>'
+            return html
+
+        def analyze_input(event):
+            document['output'].clear()
+            input_text = document['inputParagraph'].value.strip()
+            if input_text:
+                tokens = lexical_analyzer(input_text)
+                if isinstance(tokens, str):
+                    document['output'].text = tokens
+                else:
+                    result = parse(tokens)
+                    document['output'].text = result['result']
+                    if 'derivation_steps' in result:
+                        display_derivation_table(result['derivation_steps'])
+                    if result['result'] == "Accepted":
+                        document['tree'].innerHTML = generate_tree_html(result['parse_tree'])
+
+        document['analyzeButton'].bind('click', analyze_input)
+    </script>
 </body>
 </html>
