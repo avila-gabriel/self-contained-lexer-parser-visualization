@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compilador, entre aspas</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+        }
+        .content-wrapper {
+            flex: 1;
+            padding: 0 20px;
+        }
+        md {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .tree ul {
+            padding-top: 20px;
+            position: relative;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+            list-style-type: none;
+        }
+        .tree li {
+            float: left;
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 1px solid #ccc;
+            width: 50%;
+            height: 20px;
+        }
+        .tree li::after {
+            right: auto;
+            left: 50%;
+            border-left: 1px solid #ccc;
+        }
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+        .tree li:only-child {
+            padding-top: 0;
+        }
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before {
+            border-right: 1px solid #ccc;
+            border-radius: 0 5px 0 0;
+            -webkit-border-radius: 0 5px 0 0;
+            -moz-border-radius: 0 5px 0 0;
+        }
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+            -webkit-border-radius: 5px 0 0 0;
+            -moz-border-radius: 5px 0 0 0;
+        }
+        .tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 1px solid #ccc;
+            width: 0;
+            height: 20px;
+        }
+        .tree li a {
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: #666;
+            font-family: arial, verdana, tahoma;
+            font-size: 11px;
+            display: inline-block;
+            border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+        }
+        .tree li a:hover, .tree li a:hover+ul li a {
+            background: #c8e4f8;
+            color: #000;
+            border: 1px solid #94a0b4;
+        }
+        .tree li a:hover+ul li::after, 
+        .tree li a:hover+ul li::before, 
+        .tree li a:hover+ul::before, 
+        .tree li a:hover+ul ul::before {
+            border-color: #94a0b4;
+        }
+        .tree li a.non-terminal {
+            background-color: #ffa500;
+        }
+        .tree li a.terminal {
+            background-color: #add8e6;
+        }
+        #readmeContent {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        #parseTree {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+            clear: both;
+            position: relative;
+            overflow-x: auto;
+        }
+        #parseTree .tree {
+            transform-origin: top left;
+        }
+        #parseTree .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+        }
+        .zoom-controls button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow: auto;
+        }
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #f8f8f8;
+            border-right: 1px solid #ddd;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            display: block;
+            color: #333;
+            padding: 10px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #ddd;
+        }
+        .sidebar h2 {
+            font-size: 1.2em;
+            margin-top: 0;
+        }
+        section {
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.10.6/brython.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/prettify.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/prettify.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/MarketingPipeline/Markdown-Tag/markdown-tag.js"></script>
+</head>
+<body onload="brython(); prettyPrint()">
+    <div class="sidebar">
+        <h2>Index</h2>
+        <a href="#readme">README</a>
+        <a href="#test-cases">Test Cases</a>
+        <a href="#input">Input</a>
+        <a href="#lexical-analysis">Lexical Analysis</a>
+        <a href="#derivation-table">Derivation Table</a>
+        <a href="#parse-tree">Parse Tree</a>
+        <a href="#lexical-analysis-code">Lexical Analysis Code</a>
+        <a href="#syntactical-analysis-code">Syntactical Analysis Code</a>
+    </div>
+    <div class="content-wrapper">
+        <main>
+            <section id="readme">
+                <h2>README</h2>
+                <div id="readmeContent">
+                    <md>
+# Introdução a Compiladores
+This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 language.
+## Features
+- Lexical Analysis
+- Syntax Analysis
+- Parse Tree Visualization
+## Instructions
+1. Type or paste your LSI-2024-1 code in the input textarea.
+2. Click the "Analyze" button to perform lexical and syntax analysis.
+3. View the lexical analysis results in the table.
+4. View the derivation steps and parse tree.
+## Test Cases
+- Valid Program
+- Programs with Lexical Errors
+- Programs with Syntax Errors
+                    </md>
+                </div>
+            </section>
+            <hr>
+
+            <section id="test-cases">
+                <h2>Test Cases</h2>
+                <div>
+                    <h3>Valid Program</h3>
+                    <pre id="validProgram"></pre>
+                    <button id="testValidProgramButton">Test Valid Program</button>
+                </div>
+                <div>
+                    <h3>Lexical Errors</h3>
+                    <pre id="lexicalError1"></pre>
+                    <button id="testLexicalError1Button">Test Lexical Error 1</button>
+                    <pre id="lexicalError2"></pre>
+                    <button id="testLexicalError2Button">Test Lexical Error 2</button>
+                    <pre id="lexicalError3"></pre>
+                    <button id="testLexicalError3Button">Test Lexical Error 3</button>
+                </div>
+                <div>
+                    <h3>Syntactical Errors</h3>
+                    <pre id="syntaxError1"></pre>
+                    <button id="testSyntaxError1Button">Test Syntax Error 1</button>
+                    <pre id="syntaxError2"></pre>
+                    <button id="testSyntaxError2Button">Test Syntax Error 2</button>
+                    <pre id="syntaxError3"></pre>
+                    <button id="testSyntaxError3Button">Test Syntax Error 3</button>
+                </div>
+            </section>
+            <hr>
+            
+            <section id="input">
+                <h2>Input</h2>
+                <textarea id="inputParagraph" placeholder="Type your input here!"></textarea>
+                <button id="analyzeButton">Analyze</button>
+                <div id="output"></div>
+            </section>
+            <hr>
+            
+            <section id="lexical-analysis">
+                <h2>Lexical Analysis</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Token</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tokenTableBody">
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section id="derivation-table">
+                <h2>Derivation Table</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Step</th>
+                            <th>Stack</th>
+                            <th>Derivation</th>
+                            <th>Current String</th>
+                        </tr>
+                    </thead>
+                    <tbody id="derivationTableBody">
+                    </tbody>
+                </table>
+            </section>
+            <hr>
+
+            <section id="parse-tree">
+                <h2>Parse Tree</h2>
+                <div class="zoom-controls">
+                    <button id="zoomInButton">Zoom In</button>
+                    <button id="zoomOutButton">Zoom Out</button>
+                </div>
+                <div class="tree">
+                    <ul id="tree"></ul>
+                </div>
+            </section>
+            <hr>
+
+            <section id="lexical-analysis-code">
+                <h2>Lexical Analysis Code</h2>
+                <pre class="prettyprint lang-py">
+                    <code>
+                    </code>
+                </pre>
+            </section>
+
+            <section id="syntactical-analysis-code">
+                <h2>Syntactical Analysis Code</h2>
+                <pre class="prettyprint lang-py">
+                    <code>
+                    </code>
+                </pre>
+            </section>
+            <hr>
+        </main>
+    </div>
+
+    <script type="text/python">
+        from browser import document, alert, window
+
+        # Placeholder for the parsing table
+        parsing_table = {}
+
+        def lexical_analyzer(input):
+            tokens = []
+            i = 0
+            token_steps = []
+            # Define your language-specific lexical analysis logic here
+            while i < len(input):
+                char = input[i]
+                # Add your language-specific tokenization logic here
+                i += 1
+            tokens.append('$')
+            token_steps.append({'position': i, 'token': '$'})
+            display_token_table(token_steps)
+            return tokens
+
+        def parse(tokens):
+            stack = ['$', 'E']  # Adjust the start symbol as needed
+            index = 0
+            step_number = 0
+            derivation_steps = [{'step': step_number, 'production': 'Start', 'current_string': 'E', 'stack': ' '.join(reversed(stack))}]
+            parse_tree = {'value': 'E', 'children': []}
+            parse_stack = [{'node': parse_tree, 'token': 'E'}]
+
+            while len(stack) > 1 or index < len(tokens) - 1:
+                top = stack.pop()
+                token = tokens[index]
+                current_parse_node = parse_stack.pop()
+                if top in parsing_table and token in parsing_table[top]:
+                    production = parsing_table[top][token]
+                    stack.extend(reversed([x for x in production if x != 'ε']))
+                    derivation_steps.append({'step': step_number, 'production': f"{top} → {' '.join(production)}", 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
+                    for symbol in reversed(production):
+                        if symbol != 'ε':
+                            new_node = {'value': symbol, 'children': []}
+                            current_parse_node['node']['children'].append(new_node)
+                            parse_stack.append({'node': new_node, 'token': symbol})
+                elif top == token:
+                    index += 1
+                else:
+                    return {'result': f"Syntax error: expected '{top}' but found '{token}' at position {index}", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
+                step_number += 1
+
+            derivation_steps.append({'step': step_number + 1, 'production': 'End', 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
+            return {'result': "Accepted", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
+
+        def display_token_table(token_steps):
+            table_body = document['tokenTableBody']
+            table_body.clear()
+            for step in token_steps:
+                row = document.createElement('tr')
+                position_cell = document.createElement('td')
+                position_cell.text = str(step['position'])
+                token_cell = document.createElement('td')
+                token_cell.text = step['token']
+                row <= position_cell
+                row <= token_cell
+                table_body <= row
+
+        def display_derivation_table(derivation_steps):
+            table_body = document['derivationTableBody']
+            table_body.clear()
+            for step in derivation_steps:
+                row = document.createElement('tr')
+                step_number_cell = document.createElement('td')
+                step_number_cell.text = str(step['step'])
+                stack_cell = document.createElement('td')
+                stack_cell.text = step['stack']
+                step_cell = document.createElement('td')
+                step_cell.text = step['production']
+                current_string_cell = document.createElement('td')
+                current_string_cell.text = step['current_string']
+                row <= step_number_cell
+                row <= stack_cell
+                row <= step_cell
+                row <= current_string_cell
+                table_body <= row
+
+        def generate_tree_html(node):
+            if not node:
+                return ''
+
+            css_class = 'non-terminal' if node['children'] else 'terminal'
+
+            html = f'<li><a href="#" class="{css_class}">{node["value"]}</a>'
+            if node['children']:
+                html += '<ul>'
+                for child in node['children']:
+                    html += generate_tree_html(child)
+                html += '</ul>'
+            html += '</li>'
+            return html
+
+        def analyze_input(event):
+            document['output'].clear()
+            input_text = document['inputParagraph'].value.strip()
+            if input_text:
+                tokens = lexical_analyzer(input_text)
+                if isinstance(tokens, str):
+                    document['output'].text = tokens
+                else:
+                    result = parse(tokens)
+                    document['output'].text = result['result']
+                    if 'derivation_steps' in result:
+                        display_derivation_table(result['derivation_steps'])
+                    if result['result'] == "Accepted":
+                        document['tree'].innerHTML = generate_tree_html(result['parse_tree'])
+
+        def run_test_case(event):
+            case_id = event.target.getAttribute("data-case-id")
+            input_text = document[case_id].text
+            document['inputParagraph'].value = input_text
+            analyze_input(None)
+
+        def zoom_in(event):
+            tree = document.querySelector('#parse-tree .tree')
+            current_scale = get_current_scale(tree)
+            new_scale = current_scale + 0.1
+            tree.style.transform = f'scale({new_scale})'
+
+        def zoom_out(event):
+            tree = document.querySelector('#parse-tree .tree')
+            current_scale = get_current_scale(tree)
+            new_scale = max(0.1, current_scale - 0.1)
+            tree.style.transform = f'scale({new_scale})'
+
+        def get_current_scale(element):
+            transform = element.style.transform
+            if transform.startswith('scale('):
+                return float(transform.split('(')[1].split(')')[0])
+            return 1.0
+
+        document['analyzeButton'].bind('click', analyze_input)
+
+        document['validProgram'].text = ""
+        document['lexicalError1'].text = ""
+        document['lexicalError2'].text = ""
+        document['lexicalError3'].text = ""
+        document['syntaxError1'].text = ""
+        document['syntaxError2'].text = ""
+        document['syntaxError3'].text = ""
+
+        document['testValidProgramButton'].bind('click', run_test_case)
+        document['testValidProgramButton'].setAttribute("data-case-id", "validProgram")
+        document['testLexicalError1Button'].bind('click', run_test_case)
+        document['testLexicalError1Button'].setAttribute("data-case-id", "lexicalError1")
+        document['testLexicalError2Button'].bind('click', run_test_case)
+        document['testLexicalError2Button'].setAttribute("data-case-id", "lexicalError2")
+        document['testLexicalError3Button'].bind('click', run_test_case)
+        document['testLexicalError3Button'].setAttribute("data-case-id", "lexicalError3")
+        document['testSyntaxError1Button'].bind('click', run_test_case)
+        document['testSyntaxError1Button'].setAttribute("data-case-id", "syntaxError1")
+        document['testSyntaxError2Button'].bind('click', run_test_case)
+        document['testSyntaxError2Button'].setAttribute("data-case-id", "syntaxError2")
+        document['testSyntaxError3Button'].bind('click', run_test_case)
+        document['testSyntaxError3Button'].setAttribute("data-case-id", "syntaxError3")
+
+        document['zoomInButton'].bind('click', zoom_in)
+        document['zoomOutButton'].bind('click', zoom_out)
+    </script>
+</body>
+</html>
