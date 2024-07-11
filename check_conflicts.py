@@ -167,3 +167,47 @@ def print_pretty_sets_and_conflicts(first, follow, conflicts):
             print(f"  Conflict between productions: {prod1} and {prod2}")
 
 print_pretty_sets_and_conflicts(first, follow, conflicts)
+
+def build_LL1_parse_table(grammar, first, follow):
+    parse_table = defaultdict(dict)
+
+    # Populate the parse table
+    for production in grammar.productions():
+        lhs = production.lhs()
+        rhs = production.rhs()
+
+        # For each terminal 'a' in FIRST(rhs), add the production A -> rhs to parse_table[A, a]
+        first_rhs = compute_first_of_sequence(rhs, first)
+        for terminal in first_rhs:
+            parse_table[lhs, terminal] = production
+
+        # If ε is in FIRST(rhs), add the production A -> rhs to parse_table[A, b]
+        # for each terminal 'b' in FOLLOW(A)
+        if 'ε' in first_rhs:
+            for terminal in follow[lhs]:
+                parse_table[lhs, terminal] = production
+
+    return parse_table
+
+def compute_first_of_sequence(sequence, first):
+    first_seq = set()
+    for symbol in sequence:
+        if not isinstance(symbol, Nonterminal):
+            first_seq.add(symbol)
+            break
+        first_seq.update(first[symbol])
+        if 'ε' not in first[symbol]:
+            break
+    else:
+        first_seq.add('ε')
+    return first_seq
+
+# Build LL(1) parse table
+parse_table = build_LL1_parse_table(grammar, first, follow)
+
+# Print the LL(1) parse table
+print("\nLL(1) Parse Table:")
+pprint.pprint(parse_table)
+
+# Print pretty sets and conflicts (already defined in the previous code)
+print_pretty_sets_and_conflicts(first, follow, conflicts)
