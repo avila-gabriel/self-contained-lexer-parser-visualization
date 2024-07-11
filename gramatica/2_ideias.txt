@@ -1,0 +1,18 @@
+Ideias
+
+MAIN -> STMT | FLIST | ε
+FLIST -> FDEF FLIST | FDEF  // Fatorar?
+FDEF -> def id(PARLIST){STMTLIST} 
+PARLIST -> int id, PARLIST | int id  | ε  // Fatorar
+STMT -> int id; | ATRIBST; | PRINTST; | RETURNST; | IFSTMT | {STMTLIST} | ;
+ATRIBST -> id = EXPR | id = FCALL  // Fatorar
+FCALL -> id(PARLISTCALL) 
+PARLISTCALL -> id, PARLISTCALL | id | ε  // Fatorar
+PRINTST -> print EXPR
+RETURNST -> return 
+IFSTMT -> if(EXPR) STMT else STMT | if(EXPR) STMT  // Fatorar
+STMTLIST -> STMT STMTLIST | STMT  // Recursao
+EXPR -> NUMEXPR < NUMEXPR | NUMEXPR > NUMEXPR | NUMEXPR == NUMEXPR | NUMEXPR
+NUMEXPR -> NUMEXPR + TERM | NUMEXPR - TERM | TERM  // Recursao
+TERM -> TERM * FACTOR | FACTOR  // Recursao
+FACTOR -> num | (NUMEXPR) | id

@@ -19,22 +19,24 @@ import pprint
 grammar = CFG.fromstring("""
 MAIN -> STMT | FLIST |
 FLIST -> FDEF FLIST_tail
-FLIST_tail -> FDEF FLIST_tail | 
+FLIST_tail -> FLIST |
 FDEF -> 'def' 'id' '(' PARLIST ')' '{' STMTLIST '}'
-PARLIST -> 'int' 'id' PARLIST_tail
-PARLIST_tail -> ',' 'int' 'id' PARLIST_tail | 
+PARLIST -> 'int' 'id' PARLIST_tail |
+PARLIST_tail -> ',' PARLIST | 
 STMT -> 'int' 'id' ';' | ATRIBST ';' | PRINTST ';' | RETURNST ';' | IFSTMT | '{' STMTLIST '}' | ';'
-ATRIBST -> 'id' '=' EXPR | 'id' '=' FCALL
+ATRIBST -> 'id' '=' ATRIBST_tail
+ATRIBST_tail -> EXPR | FCALL
 FCALL -> 'id' '(' PARLISTCALL ')' 
 PARLISTCALL -> 'id' PARLISTCALL_tail
-PARLISTCALL_tail -> ',' 'id' PARLISTCALL_tail | 
+PARLISTCALL_tail -> ',' PARLISTCALL | 
 PRINTST -> 'print' EXPR
 RETURNST -> 'return' 
-IFSTMT -> 'if' '(' EXPR ')' STMT 'else' STMT | 'if' '(' EXPR ')' STMT
-STMTLIST -> STMT STMTLIST | STMT
-EXPR -> NUMEXPR COMP_EXPR | SIMPLE_EXPR
-SIMPLE_EXPR -> NUMEXPR
-COMP_EXPR -> '<' NUMEXPR | '>' NUMEXPR | '==' NUMEXPR
+IFSTMT -> 'if' '(' EXPR ')' STMT IFSTMT_tail
+IFSTMT_tail -> 'else' STMT |
+STMTLIST -> STMT STMTLIST_tail
+STMTLIST_tail -> STMTLIST |
+EXPR -> NUMEXPR COMP_EXPR
+COMP_EXPR -> '<' NUMEXPR | '>' NUMEXPR | '==' NUMEXPR |
 NUMEXPR -> TERM NUMEXPR_prime
 NUMEXPR_prime -> '+' TERM NUMEXPR_prime | '-' TERM NUMEXPR_prime |
 TERM -> FACTOR TERM_prime
