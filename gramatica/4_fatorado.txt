@@ -9,7 +9,7 @@ PARLIST' -> , PARLIST | ε
 STMT -> int id; | ATRIBST; | PRINTST; | RETURNST; | IFSTMT | {STMTLIST} | ;
 ATRIBST -> id = ATRIBST'
 ATRIBST' -> EXPR | FCALL
-FCALL -> call id(PARLISTCALL)  # Adicionei uma palavra chave para diferenciar o first de FCALL e de EXPR
+FCALL -> call id(PARLISTCALL)  # Adicionei uma palavra chave para diferenciar o first de FCALL e de EXPR e resolver ambiguidade
 PARLISTCALL -> id PARLISTCALL'
 PARLISTCALL' -> , PARLISTCALL | ε
 PRINTST -> print EXPR
