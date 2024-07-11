@@ -4,6 +4,10 @@ from nltk.grammar import Nonterminal
 from collections import defaultdict
 import pprint
 
+#ToDo arrumar isso, manualmente, de acordo com as regras dos slides. Seguir o que o professor fala no trabalho de como fzr isso.
+#... tentar deixar LL1. Provavel q vai ter na tabela algum lugar q nao ha torna LL1 (2 opcoes em uma caixa). Aí será feito hardcode (espie o outro ToDo)
+#... provavel que vai ter apenas 1 erro e é no if then else. Manda msg no grupo se precisar.
+
 # É muito simples deixar o grammar num formato legivel pra essa api:
 # A derivação tem que ser ->
 # os não terminais precisam de single quotes (') ao redor
@@ -140,10 +144,18 @@ def print_pretty_sets_and_conflicts(first, follow, conflicts):
     pp = pprint.PrettyPrinter(indent=4)
 
     print("\nFIRST Sets:")
-    pp.pprint(dict(first))
+    for production in grammar.productions():
+        lhs = production.lhs()
+        if lhs in first:
+            print(f"{lhs}: {first[lhs]}")
 
     print("\nFOLLOW Sets:")
-    pp.pprint(dict(follow))
+    seen = set()
+    for production in grammar.productions():
+        lhs = production.lhs()
+        if lhs not in seen:
+            print(f"{lhs}: {follow[lhs]}")
+            seen.add(lhs)
 
     print("\nConflicts:")
     for nonterminal, conflict_list in conflicts.items():

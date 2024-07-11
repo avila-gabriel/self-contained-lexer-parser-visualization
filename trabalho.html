@@ -336,8 +336,10 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
         from browser import document, alert, window
 
         # Placeholder for the parsing table
+        # ToDo botar parcing table
         parsing_table = {}
 
+        # ToDo ver se reconhece os tokens que precisa
         def lexical_analyzer(input):
             tokens = []
             i = 0
@@ -352,6 +354,7 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
             display_token_table(token_steps)
             return tokens
 
+        # ToDo ver se precisa adaptar o parser manualmente no final para conseguirmos usar a tabela como se fosse uma tabela LL1
         def parse(tokens):
             stack = ['$', 'E']  # Adjust the start symbol as needed
             index = 0
