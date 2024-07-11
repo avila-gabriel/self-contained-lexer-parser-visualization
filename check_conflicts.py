@@ -26,7 +26,7 @@ PARLIST_tail -> ',' PARLIST |
 STMT -> 'int' 'id' ';' | ATRIBST ';' | PRINTST ';' | RETURNST ';' | IFSTMT | '{' STMTLIST '}' | ';'
 ATRIBST -> 'id' '=' ATRIBST_tail
 ATRIBST_tail -> EXPR | FCALL
-FCALL -> 'id' '(' PARLISTCALL ')' 
+FCALL -> 'call' 'id' '(' PARLISTCALL ')' 
 PARLISTCALL -> 'id' PARLISTCALL_tail
 PARLISTCALL_tail -> ',' PARLISTCALL | 
 PRINTST -> 'print' EXPR
