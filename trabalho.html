@@ -366,10 +366,15 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
             while len(stack) > 1 or index < len(tokens) - 1:
                 top = stack.pop()
                 token = tokens[index]
+
+                # Para desenhar
                 current_parse_node = parse_stack.pop()
+
                 if top in parsing_table and token in parsing_table[top]:
                     production = parsing_table[top][token]
                     stack.extend(reversed([x for x in production if x != 'ε']))
+
+                    # Para desenhar
                     derivation_steps.append({'step': step_number, 'production': f"{top} → {' '.join(production)}", 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
                     for symbol in reversed(production):
                         if symbol != 'ε':
@@ -382,6 +387,7 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
                     return {'result': f"Syntax error: expected '{top}' but found '{token}' at position {index}", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
                 step_number += 1
 
+            # Para desenhar
             derivation_steps.append({'step': step_number + 1, 'production': 'End', 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
             return {'result': "Accepted", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
 
