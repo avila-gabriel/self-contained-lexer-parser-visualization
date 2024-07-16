@@ -337,10 +337,97 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
 
         # Placeholder for the parsing table
         # ToDo Prandi botar parcing table
-        parsing_table = {}
+        parsing_table = {
+            'MAIN': {'$': ['ε'],
+                    ';': ['STMT'],
+                    'def': ['FLIST'],
+                    'id': ['STMT'],
+                    'if': ['STMT'],
+                    'int': ['STMT'],
+                    'print': ['STMT'],
+                    'return': ['STMT'],
+                    '{': ['STMT']},
+            'STMT': {';': [';'],
+                    'id': ['print', ';'],
+                    'if': ['IFSTMT'],
+                    'int': ['int', 'id', ';'],
+                    'print': ['PRINTST', ';'],
+                    'return': ['RETURNST', ';'],
+                    '{': ['{', 'STMTLIST', '}']},
+            'FLIST': {'def': ['FDEF', "FLIST'"]},
+            'FDEF': {'def': ['def', 'id', '(', 'PARLIST', ')', '{', 'STMTLIST', '}']},
+            "FLIST'": {'$': ['ε'], 'def': ['FLIST']},
+            'PARLIST': {')': ['ε'], 'int': ['int', 'id', "PARLIST'"]},
+            'STMTLIST': {';': ['STMT', "STMTLIST'"],
+                    'id': ['STMT', "STMTLIST'"],
+                    'if': ['STMT', "STMTLIST'"],
+                    'int': ['STMT', "STMTLIST'"],
+                    'print': ['STMT', "STMTLIST'"],
+                    'return': ['STMT', "STMTLIST'"],
+                    '{': ['STMT', "STMTLIST'"]},
+            "PARLIST'": {')': ['ε'], ',': [',', 'PARLIST']},
+            'ATRIBST': {'id': ['id', '=', "ATRIBST'"]},
+            'PRINTST': {'print': ['print', 'EXPR']},
+            'RETURNST': {'return': ['return']},
+            'IFSTMT': {'if': ['if', '(', 'EXPR', ')', 'STMT', "IFSTMT'"]},
+            "ATRIBST'": {'(': ['EXPR'],
+                    'call': ['FCALL'],
+                    'id': ['EXPR'],
+                    'num': ['EXPR']},
+            'EXPR': {'(': ['NUMEXPR', 'COMP_EXPR'],
+                    'id': ['NUMEXPR', 'COMP_EXPR'],
+                    'num': ['NUMEXPR', 'COMP_EXPR']},
+            'FCALL': {'call': ['call', 'id', '(', 'PARLISTCALL', ')']},
+            'PARLISTCALL': {'id': ['id', "PARLISTCALL'"]},
+            "PARLISTCALL'": {')': ['ε'], ',': [',', 'PARLISTCALL']},
+            "IFSTMT'": {'$': ['ε'],
+                    'else': ['ELSE DANGLING'],    
+                    'id': ['ε'],
+                    'if': ['ε'],
+                    'int': ['ε'],
+                    'print': ['ε'],
+                    'return': ['ε'],
+                    '{': ['ε'],
+                    '}': ['ε']},
+            "STMTLIST'": {';': ['STMTLIST'],
+                    'STMT': ['STMTLIST'],
+                    'if': ['STMTLIST'],
+                    'int': ['STMTLIST'],
+                    'print': ['STMTLIST'],
+                    '{': ['STMTLIST'],
+                    '}': ['ε']},
+            'NUMEXPR': {'(': ['TERM', "NUMEXPR'"],
+                    'id': ['TERM', "NUMEXPR'"],
+                    'num': ['TERM', "NUMEXPR'"]},
+            'COMP_EXPR': {')': ['ε'],
+                    ';': ['ε'],
+                    '<': ['<', 'NUMEXPR'],
+                    '==': ['==', 'NUMEXPR'],
+                    '>': ['>', 'NUMEXPR']},
+            'TERM': {'(': ['TERM', "NUMEXPR'"],
+                    'id': ['TERM', "NUMEXPR'"],
+                    'num': ['TERM', "NUMEXPR'"]},
+            "NUMEXPR'": {')': ['ε'],
+                    '+': ['+', 'TERM', "NUMEXPR'"],
+                    '-': ['-', 'TERM', "NUMEXPR'"],
+                    ';': ['ε'],
+                    '<': ['ε'],
+                    '==': ['ε'],
+                    '>': ['ε']},
+            'FACTOR': {'(': ['(', 'NUMEXPR', ')'], 'id': ['id'], 'num': ['num']}, 
+            "TERM'": {'*': ['*', 'FACTOR', "TERM'"],
+                    '+': ['ε'],
+                    '-': ['ε'],
+                    ';': ['ε'],
+                    '<': ['ε'],
+                    '==': ['ε'],
+                    '>': ['ε'],
+                    '{': ['ε']}
+        }
 
         # ToDo ver se reconhece os tokens que precisa
         def lexical_analyzer(input):
+            return ['def', 'id', '(', 'int', 'id', ',', 'int', 'id', ')', '{', 'int', 'id', ';', 'int', 'id', ';', 'id', '=', 'id', '+', 'id', ';', 'id', '=', 'id', '*', 'id', ';', 'return', ';', '}', '$']
             tokens = []
             i = 0
             token_steps = []
@@ -354,23 +441,32 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
             display_token_table(token_steps)
             return tokens
 
+
         # ToDo Prandi ver se precisa adaptar o parser manualmente no final para conseguirmos usar a tabela como se fosse uma tabela LL1
         def parse(tokens):
-            stack = ['$', 'E']  # Adjust the start symbol as needed
+            stack = ['$', 'MAIN']  # Adjust the start symbol as needed
             index = 0
             step_number = 0
-            derivation_steps = [{'step': step_number, 'production': 'Start', 'current_string': 'E', 'stack': ' '.join(reversed(stack))}]
-            parse_tree = {'value': 'E', 'children': []}
-            parse_stack = [{'node': parse_tree, 'token': 'E'}]
+            derivation_steps = [{'step': step_number, 'production': 'Start', 'current_string': 'MAIN', 'stack': ' '.join(reversed(stack))}]
+            parse_tree = {'value': 'MAIN', 'children': []}
+            parse_stack = [{'node': parse_tree, 'token': 'MAIN'}]
+
+            count_linhas = 0  # para ajudar a debugar no console
 
             while len(stack) > 1 or index < len(tokens) - 1:
-                top = stack.pop()
                 token = tokens[index]
+                print(f"{count_linhas} Stack: {stack}, Token: {token}")
+                count_linhas += 1
+                top = stack.pop()
+
+                #print(f"Stack: {stack}, Token: {token}")
 
                 # Para desenhar
                 current_parse_node = parse_stack.pop()
 
-                if top in parsing_table and token in parsing_table[top]:
+                if top == token:
+                    index += 1
+                elif top in parsing_table and token in parsing_table[top]:
                     production = parsing_table[top][token]
                     stack.extend(reversed([x for x in production if x != 'ε']))
 
@@ -381,8 +477,6 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
                             new_node = {'value': symbol, 'children': []}
                             current_parse_node['node']['children'].append(new_node)
                             parse_stack.append({'node': new_node, 'token': symbol})
-                elif top == token:
-                    index += 1
                 else:
                     return {'result': f"Syntax error: expected '{top}' but found '{token}' at position {index}", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
                 step_number += 1
@@ -479,7 +573,15 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
 
         document['analyzeButton'].bind('click', analyze_input)
 
-        document['validProgram'].text = ""
+        document['validProgram'].text = """
+        def func1 ( int A , int B )
+        {
+            int C = A + B ;
+            int D = B * C ;
+            return ;
+        }
+        
+        """
         document['lexicalError1'].text = ""
         document['lexicalError2'].text = ""
         document['lexicalError3'].text = ""
