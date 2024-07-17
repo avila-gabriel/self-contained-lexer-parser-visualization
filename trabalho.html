@@ -6,189 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compilador, entre aspas</title>
     <style>
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-        }
-        .content-wrapper {
-            flex: 1;
-            padding: 0 20px;
-        }
-        md {
-            font-family: Arial, sans-serif;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .tree ul {
-            padding-top: 20px;
-            position: relative;
-            transition: all 0.5s;
-            -webkit-transition: all 0.5s;
-            -moz-transition: all 0.5s;
-            list-style-type: none;
-        }
-        .tree li {
-            float: left;
-            text-align: center;
-            list-style-type: none;
-            position: relative;
-            padding: 20px 5px 0 5px;
-            transition: all 0.5s;
-            -webkit-transition: all 0.5s;
-            -moz-transition: all 0.5s;
-        }
-        .tree li::before, .tree li::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 50%;
-            border-top: 1px solid #ccc;
-            width: 50%;
-            height: 20px;
-        }
-        .tree li::after {
-            right: auto;
-            left: 50%;
-            border-left: 1px solid #ccc;
-        }
-        .tree li:only-child::after, .tree li:only-child::before {
-            display: none;
-        }
-        .tree li:only-child {
-            padding-top: 0;
-        }
-        .tree li:first-child::before, .tree li:last-child::after {
-            border: 0 none;
-        }
-        .tree li:last-child::before {
-            border-right: 1px solid #ccc;
-            border-radius: 0 5px 0 0;
-            -webkit-border-radius: 0 5px 0 0;
-            -moz-border-radius: 0 5px 0 0;
-        }
-        .tree li:first-child::after {
-            border-radius: 5px 0 0 0;
-            -webkit-border-radius: 5px 0 0 0;
-            -moz-border-radius: 5px 0 0 0;
-        }
-        .tree ul ul::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            border-left: 1px solid #ccc;
-            width: 0;
-            height: 20px;
-        }
-        .tree li a {
-            border: 1px solid #ccc;
-            padding: 5px 10px;
-            text-decoration: none;
-            color: #666;
-            font-family: arial, verdana, tahoma;
-            font-size: 11px;
-            display: inline-block;
-            border-radius: 5px;
-            -webkit-border-radius: 5px;
-            -moz-border-radius: 5px;
-            transition: all 0.5s;
-            -webkit-transition: all 0.5s;
-            -moz-transition: all 0.5s;
-        }
-        .tree li a:hover, .tree li a:hover+ul li a {
-            background: #c8e4f8;
-            color: #000;
-            border: 1px solid #94a0b4;
-        }
-        .tree li a:hover+ul li::after, 
-        .tree li a:hover+ul li::before, 
-        .tree li a:hover+ul::before, 
-        .tree li a:hover+ul ul::before {
-            border-color: #94a0b4;
-        }
-        .tree li a.non-terminal {
-            background-color: #ffa500;
-        }
-        .tree li a.terminal {
-            background-color: #add8e6;
-        }
-        #readmeContent {
-            margin-top: 20px;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-        }
-        #parseTree {
-            margin-top: 20px;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-            clear: both;
-            position: relative;
-            overflow-x: auto;
-        }
-        #parseTree .tree {
-            transform-origin: top left;
-        }
-        #parseTree .zoom-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-        }
-        .zoom-controls button {
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-        pre {
-            background-color: #f5f5f5;
-            padding: 15px;
-            border-radius: 5px;
-            overflow: auto;
-        }
-        .clearfix::after {
-            content: "";
-            clear: both;
-            display: table;
-        }
-        .sidebar {
-            position: fixed;
-            right: 0;
-            top: 0;
-            width: 250px;
-            height: 100%;
-            background-color: #f8f8f8;
-            border-right: 1px solid #ddd;
-            padding: 10px;
-            overflow-y: auto;
-        }
-        .sidebar a {
-            display: block;
-            color: #333;
-            padding: 10px;
-            text-decoration: none;
-            transition: background-color 0.3s;
-        }
-        .sidebar a:hover {
-            background-color: #ddd;
-        }
-        .sidebar h2 {
-            font-size: 1.2em;
-            margin-top: 0;
-        }
-        section {
-            min-height: 100vh;
-            padding: 20px 0;
-        }
+      @import url('styles.css');
     </style>
     <script src="https://cdn.jsdelivr.net/npm/brython@3.10.6/brython.min.js"></script>
     <link href="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/prettify.css" rel="stylesheet">
@@ -213,21 +31,30 @@
                 <h2>README</h2>
                 <div id="readmeContent">
                     <md>
-# Introdução a Compiladores
-This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 language.
-## Features
-- Lexical Analysis
-- Syntax Analysis
-- Parse Tree Visualization
-## Instructions
-1. Type or paste your LSI-2024-1 code in the input textarea.
-2. Click the "Analyze" button to perform lexical and syntax analysis.
-3. View the lexical analysis results in the table.
-4. View the derivation steps and parse tree.
-## Test Cases
-- Valid Program
-- Programs with Lexical Errors
-- Programs with Syntax Errors
+# INE5622 - Introdução a Compiladores
+
+Esse projeto visa construir um analisador léxico e um analisador sintático, para os quais serão utilizados em cima de uma gramática LL(1), identificando códigos válidos ou erros léxicos e sintáticos em cima do código fornecido.
+
+Feito por: Gabriel Ávila, Guilherme Prandi, João Victor Nery e Victor Camargo
+
+## Funcionalidades
+
+- Analisador Léxico
+- Analisador Sintático
+- Visualização da Parse tree
+
+## Instruções para execução
+
+1. Digite ou cole seu código LSI-2024-1 na área de texto de entrada.
+2. Clique no botão "Analisar" para realizar a análise léxica e sintática.
+3. Veja os resultados da análise léxica na tabela.
+4. Veja os passos de derivação e a árvore de análise.
+
+## Casos de teste
+- Programa válido
+- Programa com erros léxicos
+- Programa com erros sintáticos
+
                     </md>
                 </div>
             </section>
@@ -317,6 +144,121 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
                 <h2>Lexical Analysis Code</h2>
                 <pre class="prettyprint lang-py">
                     <code>
+class Lexer:
+    def __init__(self, source_code):
+        self.source_code = source_code
+        self.position = 0
+        self.line = 1
+        self.column = 0
+        self.current_char = self.source_code[self.position]
+        self.reserved_words = {
+        'def': 'DEF',
+        'int': 'INT',
+        'return': 'RETURN',
+        'if': 'IF',
+        'else': 'ELSE',
+        'print': 'PRINT',
+        'call': 'CALL'
+        }
+        self.special_chars = {
+        '+': 'PLUS',
+        '-': 'MINUS',
+        '*': 'MULT',
+        '(': 'LPAREN',
+        ')': 'RPAREN',
+        '{': 'LBRACK',
+        '}': 'RBRACK',
+        ',': 'COMMA',
+        ';': 'SEMIC',
+        '>': 'GT',
+        '<': 'LT',
+        '=': 'ASSIGN',
+        '==': 'EQ'
+        }
+
+    def check_next_char(self):
+        if self.current_char == '\n':
+            self.line += 1
+            self.column = 0
+        else:
+            self.column += 1
+        self.position += 1
+        if self.position < len(self.source_code):
+            self.current_char = self.source_code[self.position]
+        else:
+            self.current_char = None
+
+    def recognize_token(self):
+        tokens_value = []
+        while self.current_char is not None:
+            if self.current_char.isspace():
+                self.check_next_char()
+            elif self.current_char.isalpha():
+                identifier = self.identifier()
+                tokens_value.append(identifier)
+            elif self.current_char.isdigit():
+                number = self.number()
+                tokens_value.append(number)
+            elif self.current_char == '=':
+                lexeme = self.equals()
+                tokens_value.append(lexeme)
+            elif self.current_char in self.special_chars.keys():
+                tokens_value.append((self.special_chars[self.current_char], self.current_char))
+                self.check_next_char()
+            else:
+                self.error()
+        tokens = self.return_tokens(tokens_value)
+        return tokens
+
+    def identifier(self):
+        result = ''
+        if self.source_code[self.position - 1].isdigit():
+            self.error()
+        while self.current_char is not None and self.current_char.isalnum():
+            result += self.current_char
+            self.check_next_char()
+        if result in self.reserved_words:
+            return (self.reserved_words[result], result)
+        else:
+            return ('ID', result)
+
+    def number(self):
+        result = ''
+        while self.current_char is not None and self.current_char.isdigit():
+            result += self.current_char
+            self.check_next_char()
+        return ('NUM', result)
+
+    def equals(self):
+        self.check_next_char()
+        if self.current_char == '=':
+            self.check_next_char()
+            return ('EQ', '==')
+        else:
+            return ('ASSIGN', '=')
+
+    def return_tokens(self, tokens_value):
+        final = []
+        values = self.special_chars.values()
+        for token in tokens_value:
+            if token[0] in values:
+                final.append(token[1])
+            else:
+                final.append(token[0].lower())
+        final.append('$')
+        return final
+
+    def error(self):
+        raise Exception(f'Invalid character \'{self.current_char}\' at line {self.line}, column {self.column}')
+    
+
+def lexical_analyzer(input):
+    lexer = Lexer(input)
+    try:
+        tokens = lexer.recognize_token()
+    except Exception as e:
+        return e
+    return tokens
                     </code>
                 </pre>
             </section>
@@ -325,6 +267,113 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
                 <h2>Syntactical Analysis Code</h2>
                 <pre class="prettyprint lang-py">
                     <code>
+def parse(tokens):
+    stack = ['$', 'MAIN']
+    index = 0
+
+    while len(stack) > 1 or index < len(tokens) - 1:
+        token = tokens[index]
+        top = stack.pop()
+        if token == 'ELSE_DANGLING':
+            pass
+        elif top == token:
+            index += 1
+        elif top in parsing_table and token in parsing_table[top]:
+            production = parsing_table[top][token]
+            stack.extend(reversed([x for x in production if x != 'ε']))
+        else:
+            return {'result': f"Syntax error: expected '{top}' but found '{token}' at position {index}", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
+    return 'ta jóia!'
+
+    parsing_table = {
+        'ATRIBST': {'id': ['id', '=', "ATRIBST'"]},
+        "ATRIBST'": {'(': ['EXPR'],
+                'call': ['FCALL'],
+                'id': ['EXPR'],
+                'num': ['EXPR']},
+        'COMP_EXPR': {')': ['ε'],
+                ';': ['ε'],
+                '<': ['<', 'NUMEXPR'],
+                '==': ['==', 'NUMEXPR'],
+                '>': ['>', 'NUMEXPR']},
+        'EXPR': {'(': ['NUMEXPR', 'COMP_EXPR'],
+                'id': ['NUMEXPR', 'COMP_EXPR'],
+                'num': ['NUMEXPR', 'COMP_EXPR']},
+        'FACTOR': {'(': ['(', 'NUMEXPR', ')'], 'id': ['id'], 'num': ['num']},     
+        'FCALL': {'call': ['call', 'id', '(', 'PARLISTCALL', ')']},
+        'FDEF': {'def': ['def', 'id', '(', 'PARLIST', ')', '{', 'STMTLIST', '}']},
+        'FLIST': {'def': ['FDEF', "FLIST'"]},
+        "FLIST'": {'$': ['ε'], 'def': ['FLIST']},
+        'IFSTMT': {'if': ['if', '(', 'EXPR', ')', 'STMT', "IFSTMT'"]},
+        "IFSTMT'": {'$': ['ε'],
+                ';': ['ε'],
+                'else': ['ELSE_DANGLING'],
+                'id': ['ε'],
+                'if': ['ε'],
+                'int': ['ε'],
+                'print': ['ε'],
+                'return': ['ε'],
+                '{': ['ε'],
+                '}': ['ε']},
+        'MAIN': {'$': ['ε'],
+                ';': ['STMT'],
+                'def': ['FLIST'],
+                'id': ['STMT'],
+                'if': ['STMT'],
+                'int': ['STMT'],
+                'print': ['STMT'],
+                'return': ['STMT'],
+                '{': ['STMT']},
+        'NUMEXPR': {'(': ['TERM', "NUMEXPR'"],
+                'id': ['TERM', "NUMEXPR'"],
+                'num': ['TERM', "NUMEXPR'"]},
+        "NUMEXPR'": {')': ['ε'],
+                '+': ['+', 'TERM', "NUMEXPR'"],
+                '-': ['-', 'TERM', "NUMEXPR'"],
+                ';': ['ε'],
+                '<': ['ε'],
+                '==': ['ε'],
+                '>': ['ε']},
+        'PARLIST': {')': ['ε'], 'int': ['int', 'id', "PARLIST'"]},
+        "PARLIST'": {')': ['ε'], ',': [',', 'PARLIST']},
+        'PARLISTCALL': {'id': ['id', "PARLISTCALL'"]},
+        "PARLISTCALL'": {')': ['ε'], ',': [',', 'PARLISTCALL']},
+        'PRINTST': {'print': ['print', 'EXPR']},
+        'RETURNST': {'return': ['return']},
+        'STMT': {';': [';'],
+                'id': ['print', ' ;'],
+                'if': ['IFSTMT'],
+                'int': ['int', 'id', ';'],
+                'print': ['PRINTST', ';'],
+                'return': ['RETURNST', ';'],
+                '{': ['{', 'STMTLIST', '}']},
+        'STMTLIST': {';': ['STMT', "STMTLIST'"],
+                'id': ['STMT', "STMTLIST'"],
+                'if': ['STMT', "STMTLIST'"],
+                'int': ['STMT', "STMTLIST'"],
+                'print': ['STMT', "STMTLIST'"],
+                'return': ['STMT', "STMTLIST'"],
+                '{': ['STMT', "STMTLIST'"]},
+        "STMTLIST'": {';': ['STMTLIST'],
+                'id': ['STMTLIST'],
+                'if': ['STMTLIST'],
+                'int': ['STMTLIST'],
+                'print': ['STMTLIST'],
+                'return': ['STMTLIST'],
+                '{': ['STMTLIST'],
+                '}': ['ε']},
+        'TERM': {'(': ['TERM', "NUMEXPR'"],
+                'id': ['TERM', "NUMEXPR'"],
+                'num': ['TERM', "NUMEXPR'"]},
+        "TERM'": {')': ['ε'],
+                '*': ['*', 'FACTOR', "TERM'"],
+                '+': ['ε'],
+                '-': ['ε'],
+                ';': ['ε'],
+                '<': ['ε'],
+                '==': ['ε'],
+                '>': ['ε']}
+}
                     </code>
                 </pre>
             </section>
@@ -335,60 +384,264 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
     <script type="text/python">
         from browser import document, alert, window
 
-        # Placeholder for the parsing table
-        # ToDo Prandi botar parcing table
-        parsing_table = {}
+        parsing_table = {
+                'ATRIBST': {'id': ['id', '=', "ATRIBST'"]},
+                "ATRIBST'": {'(': ['EXPR'],
+                        'call': ['FCALL'],
+                        'id': ['EXPR'],
+                        'num': ['EXPR']},
+                'COMP_EXPR': {')': ['ε'],
+                        ';': ['ε'],
+                        '<': ['<', 'NUMEXPR'],
+                        '==': ['==', 'NUMEXPR'],
+                        '>': ['>', 'NUMEXPR']},
+                'EXPR': {'(': ['NUMEXPR', 'COMP_EXPR'],
+                        'id': ['NUMEXPR', 'COMP_EXPR'],
+                        'num': ['NUMEXPR', 'COMP_EXPR']},
+                'FACTOR': {'(': ['(', 'NUMEXPR', ')'], 'id': ['id'], 'num': ['num']},     
+                'FCALL': {'call': ['call', 'id', '(', 'PARLISTCALL', ')']},
+                'FDEF': {'def': ['def', 'id', '(', 'PARLIST', ')', '{', 'STMTLIST', '}']},
+                'FLIST': {'def': ['FDEF', "FLIST'"]},
+                "FLIST'": {'$': ['ε'], 'def': ['FLIST']},
+                'IFSTMT': {'if': ['if', '(', 'EXPR', ')', 'STMT', "IFSTMT'"]},
+                "IFSTMT'": {'$': ['ε'],
+                        ';': ['ε'],
+                        'else': ['ELSE_DANGLING'],
+                        'id': ['ε'],
+                        'if': ['ε'],
+                        'int': ['ε'],
+                        'print': ['ε'],
+                        'return': ['ε'],
+                        '{': ['ε'],
+                        '}': ['ε']},
+                'MAIN': {'$': ['ε'],
+                        ';': ['STMT'],
+                        'def': ['FLIST'],
+                        'id': ['STMT'],
+                        'if': ['STMT'],
+                        'int': ['STMT'],
+                        'print': ['STMT'],
+                        'return': ['STMT'],
+                        '{': ['STMT']},
+                'NUMEXPR': {'(': ['TERM', "NUMEXPR'"],
+                        'id': ['TERM', "NUMEXPR'"],
+                        'num': ['TERM', "NUMEXPR'"]},
+                "NUMEXPR'": {')': ['ε'],
+                        '+': ['+', 'TERM', "NUMEXPR'"],
+                        '-': ['-', 'TERM', "NUMEXPR'"],
+                        ';': ['ε'],
+                        '<': ['ε'],
+                        '==': ['ε'],
+                        '>': ['ε']},
+                'PARLIST': {')': ['ε'], 'int': ['int', 'id', "PARLIST'"]},
+                "PARLIST'": {')': ['ε'], ',': [',', 'PARLIST']},
+                'PARLISTCALL': {'id': ['id', "PARLISTCALL'"]},
+                "PARLISTCALL'": {')': ['ε'], ',': [',', 'PARLISTCALL']},
+                'PRINTST': {'print': ['print', 'EXPR']},
+                'RETURNST': {'return': ['return']},
+                'STMT': {';': [';'],
+                        'id': ['print', ' ;'],
+                        'if': ['IFSTMT'],
+                        'int': ['int', 'id', ';'],
+                        'print': ['PRINTST', ';'],
+                        'return': ['RETURNST', ';'],
+                        '{': ['{', 'STMTLIST', '}']},
+                'STMTLIST': {';': ['STMT', "STMTLIST'"],
+                        'id': ['STMT', "STMTLIST'"],
+                        'if': ['STMT', "STMTLIST'"],
+                        'int': ['STMT', "STMTLIST'"],
+                        'print': ['STMT', "STMTLIST'"],
+                        'return': ['STMT', "STMTLIST'"],
+                        '{': ['STMT', "STMTLIST'"]},
+                "STMTLIST'": {';': ['STMTLIST'],
+                        'id': ['STMTLIST'],
+                        'if': ['STMTLIST'],
+                        'int': ['STMTLIST'],
+                        'print': ['STMTLIST'],
+                        'return': ['STMTLIST'],
+                        '{': ['STMTLIST'],
+                        '}': ['ε']},
+                'TERM': {'(': ['TERM', "NUMEXPR'"],
+                        'id': ['TERM', "NUMEXPR'"],
+                        'num': ['TERM', "NUMEXPR'"]},
+                "TERM'": {')': ['ε'],
+                        '*': ['*', 'FACTOR', "TERM'"],
+                        '+': ['ε'],
+                        '-': ['ε'],
+                        ';': ['ε'],
+                        '<': ['ε'],
+                        '==': ['ε'],
+                        '>': ['ε']}
+        }
 
-        # ToDo ver se reconhece os tokens que precisa
+        class Lexer:
+            def __init__(self, source_code):
+                self.source_code = source_code
+                self.position = 0
+                self.line = 1
+                self.column = 0
+                self.current_char = self.source_code[self.position]
+                self.reserved_words = {
+                'def': 'DEF',
+                'int': 'INT',
+                'return': 'RETURN',
+                'if': 'IF',
+                'else': 'ELSE',
+                'print': 'PRINT',
+                'call': 'CALL'
+                }
+                self.special_chars = {
+                '+': 'PLUS',
+                '-': 'MINUS',
+                '*': 'MULT',
+                '(': 'LPAREN',
+                ')': 'RPAREN',
+                '{': 'LBRACK',
+                '}': 'RBRACK',
+                ',': 'COMMA',
+                ';': 'SEMIC',
+                '>': 'GT',
+                '<': 'LT',
+                '=': 'ASSIGN',
+                '==': 'EQ'
+                }
+
+            def check_next_char(self):
+                if self.current_char == '\n':
+                    self.line += 1
+                    self.column = 0
+                else:
+                    self.column += 1
+                self.position += 1
+                if self.position < len(self.source_code):
+                    self.current_char = self.source_code[self.position]
+                else:
+                    self.current_char = None
+
+            def recognize_token(self):
+                tokens_value = []
+                while self.current_char is not None:
+                    if self.current_char.isspace():
+                        self.check_next_char()
+                    elif self.current_char.isalpha():
+                        identifier = self.identifier()
+                        tokens_value.append(identifier)
+                    elif self.current_char.isdigit():
+                        number = self.number()
+                        tokens_value.append(number)
+                    elif self.current_char == '=':
+                        lexeme = self.equals()
+                        tokens_value.append(lexeme)
+                    elif self.current_char in self.special_chars.keys():
+                        tokens_value.append((self.special_chars[self.current_char], self.current_char))
+                        self.check_next_char()
+                    else:
+                        self.error()
+                tokens = self.return_tokens(tokens_value)
+                return tokens
+
+            def identifier(self):
+                result = ''
+                if self.source_code[self.position - 1].isdigit():
+                    self.error()
+                while self.current_char is not None and self.current_char.isalnum():
+                    result += self.current_char
+                    self.check_next_char()
+                if result in self.reserved_words:
+                    return (self.reserved_words[result], result)
+                else:
+                    return ('ID', result)
+
+            def number(self):
+                result = ''
+                while self.current_char is not None and self.current_char.isdigit():
+                    result += self.current_char
+                    self.check_next_char()
+                return ('NUM', result)
+
+            def equals(self):
+                self.check_next_char()
+                if self.current_char == '=':
+                    self.check_next_char()
+                    return ('EQ', '==')
+                else:
+                    return ('ASSIGN', '=')
+
+            def return_tokens(self, tokens_value):
+                final = []
+                values = self.special_chars.values()
+                for token in tokens_value:
+                    if token[0] in values:
+                        final.append(token[1])
+                    else:
+                        final.append(token[0].lower())
+                final.append('$')
+                return final
+
+            def error(self):
+                raise Exception(f'Invalid character \'{self.current_char}\' at line {self.line}, column {self.column}')
+
         def lexical_analyzer(input):
-            tokens = []
-            i = 0
-            token_steps = []
-            # Define your language-specific lexical analysis logic here
-            while i < len(input):
-                char = input[i]
-                # Add your language-specific tokenization logic here
-                i += 1
-            tokens.append('$')
-            token_steps.append({'position': i, 'token': '$'})
-            display_token_table(token_steps)
+            lexer = Lexer(input)
+            try:
+                tokens = lexer.recognize_token()
+            except Exception as e:
+                return e
             return tokens
 
-        # ToDo Prandi ver se precisa adaptar o parser manualmente no final para conseguirmos usar a tabela como se fosse uma tabela LL1
         def parse(tokens):
-            stack = ['$', 'E']  # Adjust the start symbol as needed
+            # Inicialização da pilha com símbolo final e inicial
+            stack = ['$', 'MAIN']
+
             index = 0
             step_number = 0
-            derivation_steps = [{'step': step_number, 'production': 'Start', 'current_string': 'E', 'stack': ' '.join(reversed(stack))}]
-            parse_tree = {'value': 'E', 'children': []}
-            parse_stack = [{'node': parse_tree, 'token': 'E'}]
 
+            #Inicialização da árvore de derivação 
+            derivation_steps = [{'step': step_number, 'production': 'Start', 'current_string': 'MAIN', 'stack': ' '.join(reversed(stack))}]
+
+            parse_tree = {'value': 'MAIN', 'children': []}
+            parse_stack = [{'node': parse_tree, 'token': 'MAIN'}]
+            count_linhas = 0  # para ajudar a debugar no console
+
+            # Enquanto a pilha conter mais de um elemento e o indice estar dentro do limite do vetor de tokens
             while len(stack) > 1 or index < len(tokens) - 1:
-                top = stack.pop()
-                token = tokens[index]
 
-                # Para desenhar
+                # Obtenção do token atual
+                token = tokens[index]
+                print(f"{count_linhas} Stack: {stack}, Token: {token}")
+                count_linhas += 1
+                
+                # Atualizando o ultimo elemento da pilha
+                top = stack.pop()
+
+                #print(f"Stack: {stack}, Token: {token}")
                 current_parse_node = parse_stack.pop()
 
-                if top in parsing_table and token in parsing_table[top]:
+                elif top == token:
+                    index += 1
+                elif top in parsing_table and token in parsing_table[top]:
                     production = parsing_table[top][token]
+                    if production == 'ELSE_DANGLING':
+                        production = # prandi... tem que fazer a production virar ['ε'] ou ['else', 'STMT'], como decidir isso é o desafio. Recomendo experimentar monstando programas com a linguagem que usem if. Checa o arquivo gramatica/4_fatorado.txt para entender a linguagem
                     stack.extend(reversed([x for x in production if x != 'ε']))
 
-                    # Para desenhar
+                    # Para desenhar á arvore de derivação
                     derivation_steps.append({'step': step_number, 'production': f"{top} → {' '.join(production)}", 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
+                    
+                    #Atualização da árvore de análise sintática
                     for symbol in reversed(production):
                         if symbol != 'ε':
                             new_node = {'value': symbol, 'children': []}
                             current_parse_node['node']['children'].append(new_node)
                             parse_stack.append({'node': new_node, 'token': symbol})
-                elif top == token:
-                    index += 1
                 else:
+                    # Tratamento de erros
                     return {'result': f"Syntax error: expected '{top}' but found '{token}' at position {index}", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
                 step_number += 1
 
-            # Para desenhar
+            # Para desenhar á arvore de derivação
             derivation_steps.append({'step': step_number + 1, 'production': 'End', 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
+
             return {'result': "Accepted", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
 
         def display_token_table(token_steps):
@@ -479,13 +732,43 @@ This project demonstrates a lexical and syntactical analyzer for the LSI-2024-1 
 
         document['analyzeButton'].bind('click', analyze_input)
 
-        document['validProgram'].text = ""
-        document['lexicalError1'].text = ""
-        document['lexicalError2'].text = ""
-        document['lexicalError3'].text = ""
-        document['syntaxError1'].text = ""
-        document['syntaxError2'].text = ""
-        document['syntaxError3'].text = ""
+        # esse precisa ter pelo menos 50 linhas
+        # valido
+        document['validProgram'].text = """
+        def func1 ( int A , int B )
+        {
+            C = A + B ;
+            D = B * C ;
+            return ;
+        }
+        """
+
+        # todos esses abaixo precisam ter pelo menos 15 linhas
+        # lexicos
+        document['lexicalError1'].text = """
+
+        """
+        document['lexicalError2'].text = """
+
+        """
+        document['lexicalError3'].text = """
+
+        """
+        # sintaticos
+        document['syntaxError1'].text = """
+        def func1 ( int A , int B )
+        {
+            return ;
+            C = A + B ;
+            D = B * C ;
+        }
+        """
+        document['syntaxError2'].text = """
+
+        """
+        document['syntaxError3'].text = """
+
+        """
 
         document['testValidProgramButton'].bind('click', run_test_case)
         document['testValidProgramButton'].setAttribute("data-case-id", "validProgram")
