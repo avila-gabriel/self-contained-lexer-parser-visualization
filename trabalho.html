@@ -617,12 +617,12 @@ def parse(tokens):
                 #print(f"Stack: {stack}, Token: {token}")
                 current_parse_node = parse_stack.pop()
 
-                if token == 'ELSE_DANGLING':
-                    pass
                 elif top == token:
                     index += 1
                 elif top in parsing_table and token in parsing_table[top]:
                     production = parsing_table[top][token]
+                    if production == 'ELSE_DANGLING':
+                        production = # prandi... tem que fazer a production virar ['ε'] ou ['else', 'STMT'], como decidir isso é o desafio. Recomendo experimentar monstando programas com a linguagem que usem if. Checa o arquivo gramatica/4_fatorado.txt para entender a linguagem
                     stack.extend(reversed([x for x in production if x != 'ε']))
 
                     # Para desenhar á arvore de derivação
@@ -732,6 +732,8 @@ def parse(tokens):
 
         document['analyzeButton'].bind('click', analyze_input)
 
+        # esse precisa ter pelo menos 50 linhas
+        # valido
         document['validProgram'].text = """
         def func1 ( int A , int B )
         {
@@ -739,14 +741,34 @@ def parse(tokens):
             D = B * C ;
             return ;
         }
-        
         """
-        document['lexicalError1'].text = ""
-        document['lexicalError2'].text = ""
-        document['lexicalError3'].text = ""
-        document['syntaxError1'].text = ""
-        document['syntaxError2'].text = ""
-        document['syntaxError3'].text = ""
+
+        # todos esses abaixo precisam ter pelo menos 15 linhas
+        # lexicos
+        document['lexicalError1'].text = """
+
+        """
+        document['lexicalError2'].text = """
+
+        """
+        document['lexicalError3'].text = """
+
+        """
+        # sintaticos
+        document['syntaxError1'].text = """
+        def func1 ( int A , int B )
+        {
+            return ;
+            C = A + B ;
+            D = B * C ;
+        }
+        """
+        document['syntaxError2'].text = """
+
+        """
+        document['syntaxError3'].text = """
+
+        """
 
         document['testValidProgramButton'].bind('click', run_test_case)
         document['testValidProgramButton'].setAttribute("data-case-id", "validProgram")
