@@ -185,7 +185,11 @@ def main () {
 }
 """
 
-lexer = Lexer(error_code1)
+teste = """
+int $;
+"""
+
+lexer = Lexer(teste)
 try:
     tokens = lexer.recognize_token()
     print(tokens)
