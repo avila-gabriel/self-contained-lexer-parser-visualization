@@ -57,6 +57,10 @@ class Lexer:
                 lexeme = self.equals()
                 tokens_value.append(lexeme)
             elif self.current_char in self.special_chars.keys():
+                if self.current_char != '(':
+                    before = self.source_code[self.position - 1]
+                    if before in ('=', '>', '<'):
+                        self.error()
                 tokens_value.append((self.special_chars[self.current_char], self.current_char))
                 self.check_next_char()
             else:
@@ -66,7 +70,8 @@ class Lexer:
 
     def identifier(self):
         result = ''
-        if self.source_code[self.position - 1].isdigit():
+        before = self.source_code[self.position - 1]
+        if before.isdigit(): #Para evitar declaração de varíavel começando com número
             self.error()
         while self.current_char is not None and self.current_char.isalnum():
             result += self.current_char
@@ -78,14 +83,21 @@ class Lexer:
 
     def number(self):
         result = ''
+        # before = self.source_code[self.position - 1]
+        # if self.position < len(self.source_code):
+        #     if before in self.special_chars:
+        #         self.error()
         while self.current_char is not None and self.current_char.isdigit():
             result += self.current_char
             self.check_next_char()
         return ('NUM', result)
 
     def equals(self):
+        before = self.source_code[self.position - 1]
+        if before in ('>', '<', '(', '{', '}', ',', ';', '+', '-', '*'):
+            self.error()
         self.check_next_char()
-        if self.current_char == '=':
+        if self.current_char == '=' :
             self.check_next_char()
             return ('EQ', '==')
         else:
@@ -108,13 +120,13 @@ class Lexer:
 #Exemplo de uso
 source_code = """
 def func1(int A, int B) {
-    if(A > B) {
+    if (A > B) {
         int C;
         C = 5;
     {
 }
 """
-    
+
 #VERIFICAR CASOS DE ERRO LEXICO COMO 423423432A
 
 lexer = Lexer(source_code)
