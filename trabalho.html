@@ -144,38 +144,40 @@ Feito por: Gabriel Ávila, Guilherme Prandi, João Victor Nery e Victor Camargo
                 <h2>Lexical Analysis Code</h2>
                 <pre class="prettyprint lang-py">
                     <code>
-class Lexer:
-    def __init__(self, source_code):
-        self.source_code = source_code
-        self.position = 0
-        self.line = 1
-        self.column = 0
-        self.current_char = self.source_code[self.position]
-        self.reserved_words = {
-        'def': 'DEF',
-        'int': 'INT',
-        'return': 'RETURN',
-        'if': 'IF',
-        'else': 'ELSE',
-        'print': 'PRINT',
-        'call': 'CALL'
-        }
-        self.special_chars = {
-        '+': 'PLUS',
-        '-': 'MINUS',
-        '*': 'MULT',
-        '(': 'LPAREN',
-        ')': 'RPAREN',
-        '{': 'LBRACK',
-        '}': 'RBRACK',
-        ',': 'COMMA',
-        ';': 'SEMIC',
-        '>': 'GT',
-        '<': 'LT',
-        '=': 'ASSIGN',
-        '==': 'EQ'
-        }
+    class Lexer:
+        def __init__(self, source_code):
+            self.source_code = source_code #Input código
+            self.position = 0 #Guarda o index do input para saber em qual caracter está o AL
+            self.line = 1 #Identifica linha do input
+            self.column = 0 #Identifica coluna do input
+            self.current_char = self.source_code[self.position] #Char atual percorrido
+            self.error_msg = 0
+            self.reserved_words = { #Palavras reservadas
+            'def': 'DEF',
+            'int': 'INT',
+            'return': 'RETURN',
+            'if': 'IF',
+            'else': 'ELSE',
+            'print': 'PRINT',
+            'call': 'CALL'
+            }
+            self.special_chars = { #Caracteres especiais
+            '+': 'PLUS',
+            '-': 'MINUS',
+            '*': 'MULT',
+            '(': 'LPAREN',
+            ')': 'RPAREN',
+            '{': 'LBRACK',
+            '}': 'RBRACK',
+            ',': 'COMMA',
+            ';': 'SEMIC',
+            '>': 'GT',
+            '<': 'LT',
+            '=': 'ASSIGN',
+            '==': 'EQ'
+            }
 
+    #Percorre caracter por caracter e atualiza atributos de linha, coluna e caracter conforme necessário
     def check_next_char(self):
         if self.current_char == '\n':
             self.line += 1
@@ -188,31 +190,47 @@ class Lexer:
         else:
             self.current_char = None
 
+    #Identificar tokens com base nos lexemas
     def recognize_token(self):
         tokens_value = []
+        token_steps = []
         while self.current_char is not None:
             if self.current_char.isspace():
                 self.check_next_char()
             elif self.current_char.isalpha():
                 identifier = self.identifier()
                 tokens_value.append(identifier)
+                token_steps.append({'position': self.position - len(identifier), 'token': identifier[0]})
             elif self.current_char.isdigit():
                 number = self.number()
                 tokens_value.append(number)
+                token_steps.append({'position': self.position - len(number), 'token': 'num'})
             elif self.current_char == '=':
                 lexeme = self.equals()
                 tokens_value.append(lexeme)
+                token_steps.append({'position': self.position - len(lexeme), 'token': lexeme[1]})
             elif self.current_char in self.special_chars.keys():
+                if self.current_char != '(':
+                    before = self.source_code[self.position - 1]
+                    if before in ('=', '>', '<', '+', '-', '*'): #Para evitar criação de operadores inexistentes
+                        self.error()
                 tokens_value.append((self.special_chars[self.current_char], self.current_char))
+                token_steps.append({'position': self.position - len(self.current_char), 'token': self.current_char})
                 self.check_next_char()
             else:
-                self.error()
+                return f'Lexical error: Invalid character \'{self.current_char}\' at line {self.line - 1}, column {self.column}'
+        if self.error_msg != 0:
+            return self.error_msg
         tokens = self.return_tokens(tokens_value)
+        token_steps.append({'position': self.position, 'token': '$'})
+        display_token_table(token_steps)
         return tokens
 
+    #Método para classificar lexema como token de tipo identificador
     def identifier(self):
         result = ''
-        if self.source_code[self.position - 1].isdigit():
+        before = self.source_code[self.position - 1]
+        if before.isdigit(): #Para evitar declaração de varíavel começando com número
             self.error()
         while self.current_char is not None and self.current_char.isalnum():
             result += self.current_char
@@ -222,6 +240,7 @@ class Lexer:
         else:
             return ('ID', result)
 
+    #Método para classificar lexema como token de tipo num
     def number(self):
         result = ''
         while self.current_char is not None and self.current_char.isdigit():
@@ -229,14 +248,19 @@ class Lexer:
             self.check_next_char()
         return ('NUM', result)
 
+    #Método para classificar lexema como token de tipo EQUAL ou ASSIGN
     def equals(self):
+        before = self.source_code[self.position - 1]
+        if before in ('>', '<', '(', '{', '}', ',', ';', '+', '-', '*'): #Evitar criação de operadores inexistentes
+            self.error()
         self.check_next_char()
-        if self.current_char == '=':
+        if self.current_char == '=' :
             self.check_next_char()
             return ('EQ', '==')
         else:
             return ('ASSIGN', '=')
 
+    #Método para retornar lista de tokens identificados do input no formato desejado
     def return_tokens(self, tokens_value):
         final = []
         values = self.special_chars.values()
@@ -248,17 +272,18 @@ class Lexer:
         final.append('$')
         return final
 
+    #Método para lançar exceção caso erro léxico seja identificado
     def error(self):
-        raise Exception(f'Invalid character \'{self.current_char}\' at line {self.line}, column {self.column}')
-    
+        self.error_msg = f'Lexical error: Invalid character \'{self.current_char}\' at line {self.line}, column {self.column}'
 
+# ToDo ver se reconhece os tokens que precisa
 def lexical_analyzer(input):
     lexer = Lexer(input)
     try:
         tokens = lexer.recognize_token()
+        return tokens
     except Exception as e:
-        return e
-    return tokens
+        pass
                     </code>
                 </pre>
             </section>
@@ -476,12 +501,13 @@ def parse(tokens):
 
         class Lexer:
             def __init__(self, source_code):
-                self.source_code = source_code
-                self.position = 0
-                self.line = 1
-                self.column = 0
-                self.current_char = self.source_code[self.position]
-                self.reserved_words = {
+                self.source_code = source_code #Input código
+                self.position = 0 #Guarda o index do input para saber em qual caracter está o AL
+                self.line = 1 #Identifica linha do input
+                self.column = 0 #Identifica coluna do input
+                self.current_char = self.source_code[self.position] #Char atual percorrido
+                self.error_msg = 0
+                self.reserved_words = { #Palavras reservadas
                 'def': 'DEF',
                 'int': 'INT',
                 'return': 'RETURN',
@@ -490,7 +516,7 @@ def parse(tokens):
                 'print': 'PRINT',
                 'call': 'CALL'
                 }
-                self.special_chars = {
+                self.special_chars = { #Caracteres especiais
                 '+': 'PLUS',
                 '-': 'MINUS',
                 '*': 'MULT',
@@ -506,6 +532,7 @@ def parse(tokens):
                 '==': 'EQ'
                 }
 
+            #Percorre caracter por caracter e atualiza atributos de linha, coluna e caracter conforme necessário
             def check_next_char(self):
                 if self.current_char == '\n':
                     self.line += 1
@@ -518,31 +545,47 @@ def parse(tokens):
                 else:
                     self.current_char = None
 
+            #Identificar tokens com base nos lexemas
             def recognize_token(self):
                 tokens_value = []
+                token_steps = []
                 while self.current_char is not None:
                     if self.current_char.isspace():
                         self.check_next_char()
                     elif self.current_char.isalpha():
                         identifier = self.identifier()
                         tokens_value.append(identifier)
+                        token_steps.append({'position': self.position - len(identifier), 'token': identifier[0]})
                     elif self.current_char.isdigit():
                         number = self.number()
                         tokens_value.append(number)
+                        token_steps.append({'position': self.position - len(number), 'token': 'num'})
                     elif self.current_char == '=':
                         lexeme = self.equals()
                         tokens_value.append(lexeme)
+                        token_steps.append({'position': self.position - len(lexeme), 'token': lexeme[1]})
                     elif self.current_char in self.special_chars.keys():
+                        if self.current_char != '(':
+                            before = self.source_code[self.position - 1]
+                            if before in ('=', '>', '<', '+', '-', '*'): #Para evitar criação de operadores inexistentes
+                                self.error()
                         tokens_value.append((self.special_chars[self.current_char], self.current_char))
+                        token_steps.append({'position': self.position - len(self.current_char), 'token': self.current_char})
                         self.check_next_char()
                     else:
-                        self.error()
+                        return f'Lexical error: Invalid character \'{self.current_char}\' at line {self.line}, column {self.column}'
+                if self.error_msg != 0:
+                    return self.error_msg
                 tokens = self.return_tokens(tokens_value)
+                token_steps.append({'position': self.position, 'token': '$'})
+                display_token_table(token_steps)
                 return tokens
 
+            #Método para classificar lexema como token de tipo identificador
             def identifier(self):
                 result = ''
-                if self.source_code[self.position - 1].isdigit():
+                before = self.source_code[self.position - 1]
+                if before.isdigit(): #Para evitar declaração de varíavel começando com número
                     self.error()
                 while self.current_char is not None and self.current_char.isalnum():
                     result += self.current_char
@@ -552,6 +595,7 @@ def parse(tokens):
                 else:
                     return ('ID', result)
 
+            #Método para classificar lexema como token de tipo num
             def number(self):
                 result = ''
                 while self.current_char is not None and self.current_char.isdigit():
@@ -559,14 +603,19 @@ def parse(tokens):
                     self.check_next_char()
                 return ('NUM', result)
 
+            #Método para classificar lexema como token de tipo EQUAL ou ASSIGN
             def equals(self):
+                before = self.source_code[self.position - 1]
+                if before in ('>', '<', '(', '{', '}', ',', ';', '+', '-', '*'): #Evitar criação de operadores inexistentes
+                    self.error()
                 self.check_next_char()
-                if self.current_char == '=':
+                if self.current_char == '=' :
                     self.check_next_char()
                     return ('EQ', '==')
                 else:
                     return ('ASSIGN', '=')
 
+            #Método para retornar lista de tokens identificados do input no formato desejado
             def return_tokens(self, tokens_value):
                 final = []
                 values = self.special_chars.values()
@@ -578,16 +627,18 @@ def parse(tokens):
                 final.append('$')
                 return final
 
+            #Método para lançar exceção caso erro léxico seja identificado
             def error(self):
-                raise Exception(f'Invalid character \'{self.current_char}\' at line {self.line}, column {self.column}')
+                self.error_msg = f'Lexical error: Invalid character \'{self.current_char}\' at line {self.line - 1}, column {self.column}'
 
+        # ToDo ver se reconhece os tokens que precisa
         def lexical_analyzer(input):
             lexer = Lexer(input)
             try:
                 tokens = lexer.recognize_token()
+                return tokens
             except Exception as e:
-                return e
-            return tokens
+                pass
 
         def parse(tokens):
             # Inicialização da pilha com símbolo final e inicial
@@ -696,9 +747,12 @@ def parse(tokens):
             input_text = document['inputParagraph'].value.strip()
             if input_text:
                 tokens = lexical_analyzer(input_text)
+                print(tokens)
                 if isinstance(tokens, str):
+                    print('passou para o erro')
                     document['output'].text = tokens
                 else:
+                    print('passou para o parse')
                     result = parse(tokens)
                     document['output'].text = result['result']
                     if 'derivation_steps' in result:
@@ -746,13 +800,63 @@ def parse(tokens):
         # todos esses abaixo precisam ter pelo menos 15 linhas
         # lexicos
         document['lexicalError1'].text = """
-
+        def error1(int A, int B) {
+            int 34C;
+            C = 20;
+            if (A + B > C) {
+                C => B - C;
+            {
+            else {
+                C = A + B
+            }
+            if (C !== A + B) {
+                print 1
+            {
+            else {
+                print 0
+            }
+        }
         """
         document['lexicalError2'].text = """
-
+        def error2(int X, int Y) {
+            int Z;
+            Z = 50;
+            if (X + Y > Z) {
+                Z = X $ Y;
+            {
+            else {
+                Z = X + Y
+            }
+            if (Z != X + Y) {
+                return Z;
+            }
+            else {
+                return 0;
+            }
+        }
         """
         document['lexicalError3'].text = """
-
+        def function ( int A , int B ) {
+            int C = A + B;
+            int D = B * C;
+            int E = C * D;
+            return E;
+        }
+        
+        def main () {
+            int C;
+            int D;
+            int R;
+            C = 4;
+            D = 5;
+            R = function(C, D);
+            if (R & C) {
+                print #0
+            } else {
+                print 1
+            }
+            return;
+        }
         """
         # sintaticos
         document['syntaxError1'].text = """
