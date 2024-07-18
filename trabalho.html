@@ -861,17 +861,70 @@ def parse(tokens):
         # sintaticos
         document['syntaxError1'].text = """
         def func1 ( int A , int B )
-        {
-            return ;
-            C = A + B ;
-            D = B * C ;
+        def main() {
+            int x;
+            x = 5;
+            if (x < 10) {
+                print(x);
+                anotherFunction(x);
+            } else {
+                x = x - 1;
+                print(x);
+            }
+            return;
+        }
+        
+        def anotherFunction(a) {  
+            if (a > 5) {
+                a = a * 2;
+                print(a);
+            } else {
+                a = a + 2;
+                print(a);
+            }
         }
         """
         document['syntaxError2'].text = """
-
+        def main() {
+            int x;
+            x = 5;
+            print(x);
+            if (x < 10) {
+                x = x + 1;
+            } else {
+                x = x - 1;
+            }
+            anotherFunction();
+            return;
+        }
+        
+        def anotherFunction() {
+            int a;
+            a = 10;
+            b = a * 2;  
+            print(a);
+        }
         """
         document['syntaxError3'].text = """
-
+        def main() {
+            int x;
+            x = 5;
+            if (x < 10) {
+                print(x);
+                anotherFunction(x);
+            } else {
+                x = x - 1;
+                print(x);
+            }
+            return;
+        }
+        
+        def anotherFunction(int a) {
+            if (a > 5) {
+                a = a * 2;
+                print(a);
+        
+        }
         """
 
         document['testValidProgramButton'].bind('click', run_test_case)
