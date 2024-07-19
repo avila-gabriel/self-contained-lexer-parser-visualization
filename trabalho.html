@@ -789,15 +789,59 @@ def parse(tokens):
         # esse precisa ter pelo menos 50 linhas
         # valido
         document['validProgram'].text = """
-        def func1 ( int A , int B )
-        {
-            C = A + B ;
-            D = B * C ;
-            return ;
+        def main() {
+            int a;
+            int b;
+            a = 5;
+            b = 10;
+            if(a < b) {
+                print a;
+            } else {
+                print b;
+            }
+            a = add(a, b);
+            print a;
         }
+        
+        def add(int x, int y) {
+            int sum;
+            sum = x + y;
+            return sum;
+        }
+        
+        def factorial(int n) {
+            int result;
+            if(n == 1) {
+                result = 1;
+            } else {
+                result = n * factorial(n - 1);
+            }
+            return result;
+        }
+        
+        def printNumber() {
+            int number;
+            number = 15;
+            print number;
+        }
+        
+        def max(int x, int y) {
+            if(x > y) {
+                return x;
+            } else {
+                return y;
+            }
+        }
+        
+        def test() {
+            int num1;
+            int num2;
+            num1 = 8;
+            num2 = 12;
+            print max(num1, num2);
+        }        
         """
 
-        # todos esses abaixo precisam ter pelo menos 15 linhas
         # lexicos
         document['lexicalError1'].text = """
         def error1(int A, int B) {
@@ -817,6 +861,7 @@ def parse(tokens):
             }
         }
         """
+        
         document['lexicalError2'].text = """
         def error2(int X, int Y) {
             int Z;
@@ -835,6 +880,7 @@ def parse(tokens):
             }
         }
         """
+
         document['lexicalError3'].text = """
         def function ( int A , int B ) {
             int C = A + B;
@@ -858,6 +904,7 @@ def parse(tokens):
             return;
         }
         """
+
         # sintaticos
         document['syntaxError1'].text = """
         def func1 ( int A , int B )
@@ -884,6 +931,7 @@ def parse(tokens):
             }
         }
         """
+
         document['syntaxError2'].text = """
         def main() {
             int x;
@@ -905,6 +953,7 @@ def parse(tokens):
             print(a);
         }
         """
+
         document['syntaxError3'].text = """
         def main() {
             int x;
