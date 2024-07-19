@@ -786,7 +786,6 @@ def parse(tokens):
 
         document['analyzeButton'].bind('click', analyze_input)
 
-        # esse precisa ter pelo menos 50 linhas
         # valido
         document['validProgram'].text = """
         def main() {
@@ -806,7 +805,7 @@ def parse(tokens):
         def add(int x, int y) {
             int sum;
             sum = x + y;
-            return sum;
+            return;
         }
         
         def factorial(int n) {
@@ -816,7 +815,7 @@ def parse(tokens):
             } else {
                 result = n * factorial(n - 1);
             }
-            return result;
+            return;
         }
         
         def printNumber() {
@@ -827,9 +826,9 @@ def parse(tokens):
         
         def max(int x, int y) {
             if(x > y) {
-                return x;
+                return;
             } else {
-                return y;
+                return;
             }
         }
         
@@ -840,69 +839,6 @@ def parse(tokens):
             num2 = 12;
             print max(num1, num2);
         }        
-        """
-
-        # lexicos
-        document['lexicalError1'].text = """
-        def error1(int A, int B) {
-            int 34C;
-            C = 20;
-            if (A + B > C) {
-                C => B - C;
-            {
-            else {
-                C = A + B
-            }
-            if (C !== A + B) {
-                print 1
-            {
-            else {
-                print 0
-            }
-        }
-        """
-        
-        document['lexicalError2'].text = """
-        def error2(int X, int Y) {
-            int Z;
-            Z = 50;
-            if (X + Y > Z) {
-                Z = X $ Y;
-            {
-            else {
-                Z = X + Y
-            }
-            if (Z != X + Y) {
-                return Z;
-            }
-            else {
-                return 0;
-            }
-        }
-        """
-
-        document['lexicalError3'].text = """
-        def function ( int A , int B ) {
-            int C = A + B;
-            int D = B * C;
-            int E = C * D;
-            return E;
-        }
-        
-        def main () {
-            int C;
-            int D;
-            int R;
-            C = 4;
-            D = 5;
-            R = function(C, D);
-            if (R & C) {
-                print #0
-            } else {
-                print 1
-            }
-            return;
-        }
         """
 
         # sintaticos
