@@ -522,11 +522,6 @@ def parse(tokens):
     while len(stack) > 1 or index < len(tokens) - 1:
         token = tokens[index]
         top = stack.pop()
-        if token == ['ELSE_DANGLING']:
-            if token == 'else':
-                production = ['else', 'STMT']
-            else:
-                production = ['ε']
         elif top == token:
             index += 1
         elif top in parsing_table and token in parsing_table[top]:
@@ -558,7 +553,7 @@ parsing_table = {
         'IFSTMT': {'if': ['if', '(', 'EXPR', ')', 'STMT', "IFSTMT'"]},
         "IFSTMT'": {'$': ['ε'],
                 ';': ['ε'],
-                'else': ['ELSE_DANGLING'],
+                'else': ['else', 'STMT'],
                 'id': ['ε'],
                 'if': ['ε'],
                 'int': ['ε'],
@@ -657,7 +652,7 @@ parsing_table = {
                 'IFSTMT': {'if': ['if', '(', 'EXPR', ')', 'STMT', "IFSTMT'"]},
                 "IFSTMT'": {'$': ['ε'],
                         ';': ['ε'],
-                        'else': ['ELSE_DANGLING'],
+                        'else': ['else', 'STMT'],
                         'id': ['ε'],
                         'if': ['ε'],
                         'int': ['ε'],
@@ -901,11 +896,6 @@ parsing_table = {
                     index += 1
                 elif top in parsing_table and token in parsing_table[top]:
                     production = parsing_table[top][token]
-                    if production == ['ELSE_DANGLING']:
-                        if token == 'else':
-                            production = ['else', 'STMT'] 
-                        else:
-                            production = ['ε']
                     stack.extend(reversed([x for x in production if x != 'ε']))
 
                     # Para desenhar á arvore de derivação
@@ -1027,8 +1017,6 @@ parsing_table = {
             b = 10;
             if(a < b) {
                 print a;
-            } else {
-                print b;
             }
             a = call add(a, b);
             print a;
