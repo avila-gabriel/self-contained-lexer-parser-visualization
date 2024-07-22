@@ -1,4 +1,4 @@
-        def parse(tokens):
+def parse(tokens):
             # Inicialização da pilha com símbolo final e inicial
             stack = ['$', 'MAIN']
 
@@ -15,6 +15,10 @@
             # Enquanto a pilha conter mais de um elemento e o indice estar dentro do limite do vetor de tokens
             while len(stack) > 1 or index < len(tokens) - 1:
 
+                if count_linhas > 1000:
+                    print("Dando break para evitar loop infinito")
+                    break
+
                 # Obtenção do token atual
                 token = tokens[index]
                 print(f"{count_linhas} Stack: {stack}, Token: {token}")
@@ -30,8 +34,11 @@
                     index += 1
                 elif top in parsing_table and token in parsing_table[top]:
                     production = parsing_table[top][token]
-                    if production == 'ELSE_DANGLING':
-                        production = ['']  # prandi... tem que fazer a production virar ['ε'] ou ['else', 'STMT'], como decidir isso é o desafio. Recomendo experimentar monstando programas com a linguagem que usem if. Checa o arquivo gramatica/4_fatorado.txt para entender a linguagem
+                    if production == ['ELSE_DANGLING']:
+                        if token == 'else':
+                            production = ['else', 'STMT'] 
+                        else:
+                            production = ['ε']
                     stack.extend(reversed([x for x in production if x != 'ε']))
 
                     # Para desenhar á arvore de derivação
@@ -47,3 +54,8 @@
                     # Tratamento de erros
                     return {'result': f"Syntax error: expected '{top}' but found '{token}' at position {index}", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
                 step_number += 1
+
+            # Para desenhar á arvore de derivação
+            derivation_steps.append({'step': step_number + 1, 'production': 'End', 'current_string': ''.join(stack), 'stack': ' '.join(reversed(stack))})
+
+            return {'result': "Accepted", 'derivation_steps': derivation_steps, 'parse_tree': parse_tree}
