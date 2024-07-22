@@ -373,7 +373,7 @@ def parse(tokens):
                 "PARLIST'": {')': ['ε'], ',': [',', 'PARLIST']},
                 'PARLISTCALL': {'id': ['id', "PARLISTCALL'"]},
                 "PARLISTCALL'": {')': ['ε'], ',': [',', 'PARLISTCALL']},
-                'PRINTST': {'print': ['ATRIBST', 'EXPR']},
+                'PRINTST': {'print': ['print', 'EXPR']},
                 'RETURNST': {'return': ['return']},
                 'STMT': {';': [';'],
                         'id': ['ATRIBST', ';'],
@@ -568,7 +568,7 @@ def parse(tokens):
             # Enquanto a pilha conter mais de um elemento e o indice estar dentro do limite do vetor de tokens
             while len(stack) > 1 or index < len(tokens) - 1:
 
-                if count_linhas > 100:
+                if count_linhas > 1000:
                     print("Dando break para evitar loop infinito")
                     break
 
