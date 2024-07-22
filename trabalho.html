@@ -1172,73 +1172,74 @@ while len(stack) > 1 or index < len(tokens) - 1:
         """
         
         # sintaticos
+        # não tem o tipo do parametro definido do add(x)
         document['syntaxError1'].text = """
-        def func1 ( int A , int B )
         def main() {
-            int x;
-            x = 5;
-            if (x < 10) {
-                print(x);
-                anotherFunction(x);
+            int a;
+            int b;
+            a = 5;
+            b = 10;
+            if(a < b) {
+                print a;
             } else {
-                x = x - 1;
-                print(x);
+                print b;
             }
-            return;
+            a = call add(a, b);
+            print a;
         }
         
-        def anotherFunction(a) {  
-            if (a > 5) {
-                a = a * 2;
-                print(a);
-            } else {
-                a = a + 2;
-                print(a);
-            }
+        def add(x, int y) {
+            int sum;
+            sum = x + y;
+            return;
         }
         """
 
+        # não colocou o sufixo call antes de chamar uma função
         document['syntaxError2'].text = """
         def main() {
-            int x;
-            x = 5;
-            print(x);
-            if (x < 10) {
-                x = x + 1;
+            int a;
+            int b;
+            a = 5;
+            b = 10;
+            if(a < b) {
+                print a;
             } else {
-                x = x - 1;
+                print b;
             }
-            anotherFunction();
-            return;
+            a = subtract(a, b);
+            print a;
         }
         
-        def anotherFunction() {
-            int a;
-            a = 10;
-            b = a * 2;  
-            print(a);
+        def subtract(int x, int y) {
+            int subtract;
+            subtract = x + y;
+            return;
         }
         """
 
+        # não foi implementando a função subtract
         document['syntaxError3'].text = """
         def main() {
-            int x;
-            x = 5;
-            if (x < 10) {
-                print(x);
-                anotherFunction(x);
+            int a;
+            a = 5;
+            if(a < b) {
+                a = call add(a, b);
+                print a;
             } else {
-                x = x - 1;
-                print(x);
+                a = call subtract(a, b);
+                print b;
             }
+            print a;
+        }
+
+        def add(int x, int y) {
+            int sum;
+            sum = x + y;
             return;
         }
         
-        def anotherFunction(int a) {
-            if (a > 5) {
-                a = a * 2;
-                print(a);
-        
+        def subtract(int x, int y) {
         }
         """
 
