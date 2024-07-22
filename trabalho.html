@@ -590,7 +590,10 @@ def parse(tokens):
                     #print(production)
                     if production == ['ELSE_DANGLING']:
                         print("Entrou no else")
-                        production = ['else', 'STMT']  # prandi... tem que fazer a production virar ['ε'] ou ['else', 'STMT'], como decidir isso é o desafio. Recomendo experimentar monstando programas com a linguagem que usem if. Checa o arquivo gramatica/4_fatorado.txt para entender a linguagem
+                        if token == 'else':
+                            production = ['else', 'STMT']  # prandi... tem que fazer a production virar ['ε'] ou ['else', 'STMT'], como decidir isso é o desafio. Recomendo experimentar monstando programas com a linguagem que usem if. Checa o arquivo gramatica/4_fatorado.txt para entender a linguagem
+                        else:
+                            production = ['ε']
                     stack.extend(reversed([x for x in production if x != 'ε']))
 
                     # Para desenhar á arvore de derivação
