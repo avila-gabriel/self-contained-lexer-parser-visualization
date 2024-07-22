@@ -462,10 +462,10 @@ def parse(tokens):
                 "PARLIST'": {')': ['ε'], ',': [',', 'PARLIST']},
                 'PARLISTCALL': {'id': ['id', "PARLISTCALL'"]},
                 "PARLISTCALL'": {')': ['ε'], ',': [',', 'PARLISTCALL']},
-                'PRINTST': {'print': ['print', 'EXPR']},
+                'PRINTST': {'print': ['ATRIBST', 'EXPR']},
                 'RETURNST': {'return': ['return']},
                 'STMT': {';': [';'],
-                        'id': ['print', ' ;'],
+                        'id': ['ATRIBST', ' ;'],
                         'if': ['IFSTMT'],
                         'int': ['int', 'id', ';'],
                         'print': ['PRINTST', ';'],
@@ -657,6 +657,10 @@ def parse(tokens):
             # Enquanto a pilha conter mais de um elemento e o indice estar dentro do limite do vetor de tokens
             while len(stack) > 1 or index < len(tokens) - 1:
 
+                if count_linhas > 100:
+                    print("Dando break para evitar loop infinito")
+                    break
+
                 # Obtenção do token atual
                 token = tokens[index]
                 print(f"{count_linhas} Stack: {stack}, Token: {token}")
@@ -672,8 +676,10 @@ def parse(tokens):
                     index += 1
                 elif top in parsing_table and token in parsing_table[top]:
                     production = parsing_table[top][token]
-                    if production == 'ELSE_DANGLING':
-                        production = ['']  # prandi... tem que fazer a production virar ['ε'] ou ['else', 'STMT'], como decidir isso é o desafio. Recomendo experimentar monstando programas com a linguagem que usem if. Checa o arquivo gramatica/4_fatorado.txt para entender a linguagem
+                    #print(production)
+                    if production == ['ELSE_DANGLING']:
+                        print("Entrou no else")
+                        production = ['else', 'STMT']  # prandi... tem que fazer a production virar ['ε'] ou ['else', 'STMT'], como decidir isso é o desafio. Recomendo experimentar monstando programas com a linguagem que usem if. Checa o arquivo gramatica/4_fatorado.txt para entender a linguagem
                     stack.extend(reversed([x for x in production if x != 'ε']))
 
                     # Para desenhar á arvore de derivação
@@ -791,54 +797,14 @@ def parse(tokens):
         def main() {
             int a;
             int b;
-            a = 5;
-            b = 10;
             if(a < b) {
                 print a;
             } else {
                 print b;
             }
-            a = add(a, b);
+            a = call add(a, b);
             print a;
         }
-        
-        def add(int x, int y) {
-            int sum;
-            sum = x + y;
-            return;
-        }
-        
-        def factorial(int n) {
-            int result;
-            if(n == 1) {
-                result = 1;
-            } else {
-                result = n * factorial(n - 1);
-            }
-            return;
-        }
-        
-        def printNumber() {
-            int number;
-            number = 15;
-            print number;
-        }
-        
-        def max(int x, int y) {
-            if(x > y) {
-                return;
-            } else {
-                return;
-            }
-        }
-        
-        def test() {
-            int num1;
-            int num2;
-            num1 = 8;
-            num2 = 12;
-            print max(num1, num2);
-        }        
         """
 
         # sintaticos
